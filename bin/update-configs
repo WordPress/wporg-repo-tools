@@ -2,7 +2,7 @@
 
 root=${1:-$(pwd)}
 
-configdir="$root/configs"
+configdir="$root/vendor/wporg/wporg-repo-tools/configs"
 configs=(
   ".eslintrc.js"
   ".prettierrc.js"
@@ -17,13 +17,23 @@ for file in "${configs[@]}"; do
       case $overwrite in
         y | Y | yes ) ;;
         * )
-          echo -e "$root/$file skipped.\n"
+          echo -e "$file skipped.\n"
           continue
         ;;
       esac
     fi
+
     echo -n "Copying $file to $root/$file... "
-    cp "$configdir/$file" "$root/$file"
+
+    case $file in
+      "phpcs.xml.dist" )
+        sed -e "s/\${TEXTDOMAIN}/$TEXTDOMAIN/" "$configdir/$file" > "$root/$file"
+      ;;
+      * )
+        cp "$configdir/$file" "$root/$file"
+      ;;
+    esac
+
     echo -e "Done.\n"
   else
     echo "Can't copy $configdir/$file because it does not exist."

@@ -53,7 +53,7 @@
          provided as a comma-delimited list. -->
     <rule ref="WordPress.WP.I18n">
         <properties>
-            <property name="text_domain" type="array" value="{$TEXT_DOMAIN}" />
+            <property name="text_domain" type="array" value="${TEXTDOMAIN}" />
         </properties>
     </rule>
 
