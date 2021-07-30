@@ -1,0 +1,31 @@
+#!/bin/bash
+
+root=${1:-$(pwd)}
+
+configdir="$root/configs"
+configs=(
+  ".eslintrc.js"
+  ".prettierrc.js"
+  ".stylelintrc"
+  "phpcs.xml.dist"
+)
+
+for file in "${configs[@]}"; do
+  if [ -f "$configdir/$file" ]; then
+    if [ -f "$root/$file" ]; then
+      read -p "$root/$file already exists. Overwrite? [y/N] " overwrite
+      case $overwrite in
+        y | Y | yes ) ;;
+        * )
+          echo -e "$root/$file skipped.\n"
+          continue
+        ;;
+      esac
+    fi
+    echo -n "Copying $file to $root/$file... "
+    cp "$configdir/$file" "$root/$file"
+    echo -e "Done.\n"
+  else
+    echo "Can't copy $configdir/$file because it does not exist."
+  fi
+done

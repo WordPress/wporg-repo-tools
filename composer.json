@@ -5,5 +5,8 @@
 	"license": "GPL-2.0-or-later",
 	"support": {
 		"issues": "https://github.com/WordPress/wporg-repo-tools/issues"
-	}
+	},
+	"bin": [
+		"bin/update-configs"
+	]
 }
