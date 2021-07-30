@@ -1,0 +1,9 @@
+{
+	"name": "wordpress/wporg-repo-tools",
+	"description": "Common configurations and scripts used in projects for WordPress.org Meta",
+	"homepage": "https://wordpress.org",
+	"license": "GPL-2.0-or-later",
+	"support": {
+		"issues": "https://github.com/WordPress/wporg-repo-tools/issues"
+	}
+}
