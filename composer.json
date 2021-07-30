@@ -1,5 +1,5 @@
 {
-	"name": "wordpress/wporg-repo-tools",
+	"name": "wporg/wporg-repo-tools",
 	"description": "Common configurations and scripts used in projects for WordPress.org Meta",
 	"homepage": "https://wordpress.org",
 	"license": "GPL-2.0-or-later",
