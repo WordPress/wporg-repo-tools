@@ -1,5 +1,8 @@
 #!/bin/bash
 
+COLOR_RED='\033[0;31m'
+COLOR_NONE='\033[0m'
+
 root=${1:-$(pwd)}
 
 configdir="$root/vendor/wporg/wporg-repo-tools/configs"
@@ -27,6 +30,9 @@ for file in "${configs[@]}"; do
 
     case $file in
       "phpcs.xml.dist" )
+        if [ -z $TEXTDOMAIN ]; then
+          echo -e "\n${COLOR_RED}No text domain defined for $file.${COLOR_NONE}"
+        fi
         sed -e "s/\${TEXTDOMAIN}/$TEXTDOMAIN/" "$configdir/$file" > "$root/$file"
       ;;
       * )
@@ -36,6 +42,6 @@ for file in "${configs[@]}"; do
 
     echo -e "Done.\n"
   else
-    echo "Can't copy $configdir/$file because it does not exist."
+    echo "${COLOR_RED}Can't copy $configdir/$file because it does not exist.${COLOR_NONE}"
   fi
 done
