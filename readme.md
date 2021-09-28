@@ -2,6 +2,8 @@ This is a repository of common configurations and scripts used in projects for W
 
 ## Installation
 
+Before installing, please sync any useful changes that have recently been made to projects that depend on this repo. Otherwise it partially defeats the point of having a central repo template.
+
 Include this in a project via Composer with something like this in your composer.json file:
 
 ```json
