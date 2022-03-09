@@ -29,7 +29,7 @@ for file in "${configs[@]}"; do
     echo -n "Copying $file to $root/$file... "
 
     case $file in
-      "phpcs.xml.dist" )
+      ".eslintrc.js" | "phpcs.xml.dist" )
         if [ -z $TEXTDOMAIN ]; then
           echo -e "\n${COLOR_RED}No text domain defined for $file.${COLOR_NONE}"
         fi
