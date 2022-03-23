@@ -164,4 +164,11 @@ module.exports = {
 		 */
 		'prettier/prettier': [ 'error', prettierConfig ],
 	},
+	overrides: [
+		{
+			// Unit test files and their helpers only.
+			files: [ '**/@(test|__tests__)/**/*.js', '**/?(*.)test.js' ],
+			extends: [ 'plugin:@wordpress/eslint-plugin/test-unit' ],
+		},
+	],
 };
