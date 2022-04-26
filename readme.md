@@ -22,4 +22,14 @@ Include this in a project via Composer with something like this in your composer
 
 ## Scripts
 
-TBD
+### update-configs
+
+This scripts provides a quick way to copy the configs in this repo into the correct places in a project, as well as sync changes to them when this repo is updated.
+
+When this repo is included in a project via Composer, you can run the following command:
+
+```bash
+TEXTDOMAIN=wporg composer exec update-configs
+```
+
+...to copy/update the config files. Replace `wporg` if the project uses a different text domain. Any config file that already exists will trigger a prompt asking if you want to replace it.
