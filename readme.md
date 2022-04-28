@@ -15,7 +15,7 @@ Include this in a project via Composer with something like this in your composer
 		}
 	],
 	"require-dev": {
-		"wordpress/wporg-repo-tools": "dev-trunk"
+		"wporg/wporg-repo-tools": "dev-trunk"
 	}
 }
 ```
