@@ -8,5 +8,9 @@
 	},
 	"bin": [
 		"bin/update-configs"
-	]
+	],
+	"require": {
+		"minicli/minicli": "^2.2",
+		"mustache/mustache": "^2.14"
+	}
 }
