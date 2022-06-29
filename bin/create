@@ -1,0 +1,116 @@
+#!/usr/bin/env php
+<?php
+namespace WordPressdotorg\Bin\Create;
+
+if ( php_sapi_name() !== 'cli' ) {
+	exit;
+}
+
+require dirname( __DIR__ ) . '/vendor/autoload.php';
+
+use Minicli\App;
+use Minicli\Input;
+use Minicli\Command\CommandCall;
+
+\Mustache_Autoloader::register();
+
+$app = new App();
+$app->setSignature( './bin/create child-theme' );
+
+/**
+ * Run the prompts from the project's configuration.
+ *
+ * @param array $prompts A set of properties used to request user input.
+ * @param array $params  The parameters provided to the script on the command line.
+ * @return array The merged list of values - from user input, command line, or defaults.
+ */
+function run_prompts( $prompts, $params ) {
+	$settings = array_fill_keys( array_keys( $prompts ), '' );
+
+	foreach ( $prompts as $key => $prompt ) {
+		$validation = $prompt['validate'] ?: function( $value ) { return $value; };
+
+		// If the value was provided in CLI args, skip the prompt.
+		if ( isset( $params[ '--' . $key ] ) ) {
+			$settings[ $key ] = call_user_func( $validation, $params[ '--' . $key ] );
+		} else {
+			if ( $prompt['default'] ) {
+				$request = new Input( sprintf( '%1$s [default: %2$s]: ', $prompt['message'], $prompt['default'] ) );
+			} else {
+				$request = new Input( sprintf( '%s: ', $prompt['message'] ) );
+			}
+
+			$response = $request->read();
+			$settings[ $key ] = call_user_func( $validation, $response );
+		}
+
+		// If we still have no value, inherit the default.
+		if ( empty( $settings[ $key ] ) ) {
+			$settings[ $key ] = $prompt['default'];
+		}
+	}
+
+	return $settings;
+}
+
+$app->registerCommand(
+	'child-theme',
+	function( CommandCall $input ) use ( $app ) {
+		$app->getPrinter()->display( "Let's create a child theme project!" );
+		$app->getPrinter()->out( 'Hit enter to accept the default values.', 'info' );
+		$app->getPrinter()->newline();
+		$app->getPrinter()->newline();
+
+		$template_path = dirname( __DIR__ ) . '/templates/child-theme';
+		$raw_files = scandir( $template_path );
+		$files = array_filter(
+			$raw_files,
+			function( $file ) {
+				return preg_match( '/\.mustache$/', $file );
+			}
+		);
+
+		if ( empty( $files ) ) {
+			$app->getPrinter()->error( "Can't find any project templates in $template_path" );
+			return;
+		}
+
+		$prompts = require_once( $template_path . '/create-project.config.php' );
+		if ( empty( $prompts['slug'] ) || empty( $prompts['slug']['default'] ) ) {
+			$app->getPrinter()->error( 'Project is not configured correctly. Slug is a required prompt, and must have a default.' );
+			return;
+		}
+
+		$settings = run_prompts( $prompts, $input->params );
+
+		// Generate any built values (like slugSnakeCase).
+		$settings['slugSnakeCase'] = str_replace( ' ', '', ucwords( str_replace( '-', ' ', $settings['slug'] ) ) );
+
+		$app->getPrinter()->display( 'Generating theme…' );
+		$m = new \Mustache_Engine;
+
+		$project_path = getcwd() . '/' . $settings['slug'];
+		$result = mkdir( $project_path );
+		if ( ! $result ) {
+			$app->getPrinter()->error( "Couldn't create directory $project_path" );
+			return;
+		}
+
+		foreach ( $files as $file ) {
+			$file_content = file_get_contents( $template_path . '/' . $file );
+			$new_content = $m->render( $file_content, $settings );
+			$new_file = preg_replace( '/\.mustache$/', '', $file );
+			$result = file_put_contents( $project_path . '/' . $new_file, $new_content );
+
+			// This is an error whether this is false or "zero bytes".
+			if ( ! $result ) {
+				$app->getPrinter()->error( "Nothing written to $project_path/$new_file" );
+				return;
+			}
+		}
+
+		$app->getPrinter()->success( "Tada! Theme created in $project_path" );
+	}
+);
+
+$app->runCommand( $argv );
