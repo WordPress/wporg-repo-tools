@@ -1,0 +1,34 @@
+{
+	"name": "wordpress/wporg-example",
+	"description": "example description",
+	"license": "GPL-2.0-or-later",
+	"support": {
+		"issues": "https://github.com/WordPress/wporg-example/issues"
+	},
+	"config": {
+		"platform": {
+			"php": "7.4"
+		},
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
+	"require": {},
+	"require-dev" : {
+		"dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+		"wp-coding-standards/wpcs": "2.3.*",
+		"phpunit/phpunit": "^9.5",
+		"spatie/phpunit-watcher": "^1.23",
+		"yoast/phpunit-polyfills": "^1.0"
+	},
+	"scripts": {
+		"lint": "phpcs --extensions=php -s -p",
+		"format": "phpcbf -p",
+		"test" : "phpunit --no-coverage",
+		"test:watch": [
+			"Composer\\Config::disableProcessTimeout",
+			"phpunit-watcher watch --no-coverage"
+		],
+		"test:coverage": "php -d xdebug.mode=coverage ./vendor/bin/phpunit"
+	}
+}

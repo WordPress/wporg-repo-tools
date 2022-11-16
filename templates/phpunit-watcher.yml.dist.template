@@ -1,0 +1,14 @@
+watch:
+  directories:
+    - ./
+  exclude:
+    - vendor
+    - node_modules
+  fileMask: '*.php'
+  ignoreDotFiles: true
+  ignoreVCS: true
+  ignoreVCSIgnored: true
+
+notifications:
+  passingTests: false
+  failingTests: false
