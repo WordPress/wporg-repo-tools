@@ -1,0 +1,17 @@
+name: "Lint"
+description: "Run all linters"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Lint CSS
+      shell: bash
+      run: yarn workspaces run lint:css
+
+    - name: Lint JS
+      shell: bash
+      run: yarn workspaces run lint:js
+
+    - name: Lint PHP
+      shell: bash
+      run: yarn lint:php

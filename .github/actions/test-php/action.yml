@@ -1,0 +1,13 @@
+name: "PHP Unit Tests"
+description: "Run the php unit tests"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install WordPress
+      shell: bash
+      run: yarn wp-env start
+
+    - name: Running PHP unit tests
+      shell: bash
+      run: yarn test:php
