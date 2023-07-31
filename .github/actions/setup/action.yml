@@ -2,11 +2,6 @@ name: "Setup"
 description: "Set up the environment"
 
 inputs:
-  textdomain:
-    description: "The textdomain used on this project."
-    default: "wporg"
-    required: false
-    type: string
   token:
     description: "A GitHub token."
     required: true
@@ -37,7 +32,7 @@ runs:
     - name: Setup configs
       shell: bash
       run: |
-        TEXTDOMAIN=${{ inputs.textdomain }} composer exec update-configs
+        yarn setup:tools
 
     - name: Build all included projects.
       shell: bash

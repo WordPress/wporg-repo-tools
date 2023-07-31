@@ -18,9 +18,10 @@ The commands in the actions assume a few standard scripts are available.
 
 The parent project needs:
 
-- `lint:php` for lint action
-- `wp-env` for test-php action
-- `test:php` for test-php action
+- `setup:tools` for setup action: set up the configs for dev tools.
+- `lint:php` for lint action: run phpcs across the appropriate files
+- `wp-env` for test-php action: map to a wp-env instance
+- `test:php` for test-php action: run phpunit tests
 
 All workspace projects need:
 
@@ -39,12 +40,11 @@ For example, to run the PHP Unit Tests action, add this to your workflow.
   uses: WordPress/wporg-repo-tools/.github/actions/test-php
 ```
 
-The setup action accepts two inputs. The `token` is required for composer to install the dependencies (the secrets are not passed through otherwise). The `textdomain` is only necessary if it's not "wporg".
+The setup action accepts one input. The `token` is required for composer to install the dependencies (the secrets are not passed through otherwise).
 
 ```yml
 - name: Setup
   uses: WordPress/wporg-repo-tools/.github/actions/setup
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
-    textdomain: wporg-custom
 ```
