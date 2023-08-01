@@ -1,0 +1,39 @@
+name: "Setup"
+description: "Set up the environment"
+
+inputs:
+  token:
+    description: "A GitHub token."
+    required: true
+    type: string
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install NodeJS
+      uses: actions/setup-node@e33196f7422957bea03ed53f6fbb155025ffc7b8 # v3.7.0
+      with:
+        node-version-file: ".nvmrc"
+        cache: "yarn"
+
+    - name: Setup PHP with PECL extension
+      uses: shivammathur/setup-php@4bd44f22a98a19e0950cbad5f31095157cc9621b # v2.25.4 
+      with:
+        php-version: "7.4"
+      env:
+        COMPOSER_TOKEN: ${{ inputs.token }}
+
+    - name: Install all dependencies
+      shell: bash
+      run: |
+        composer install || composer update wporg/*
+        yarn
+
+    - name: Setup configs
+      shell: bash
+      run: |
+        yarn setup:tools
+
+    - name: Build all included projects.
+      shell: bash
+      run: yarn workspaces run build
