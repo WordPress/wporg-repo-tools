@@ -40,4 +40,5 @@ runs:
     - name: Reset the composer files
       shell: bash
       run: |
-        git checkout composer.json composer.lock
+        git checkout composer.json
+        git checkout composer.lock || echo "No composer.lock"
