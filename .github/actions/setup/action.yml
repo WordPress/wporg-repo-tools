@@ -22,7 +22,7 @@ runs:
         sudo apt install subversion
 
     - name: Install NodeJS
-      uses: actions/setup-node@e33196f7422957bea03ed53f6fbb155025ffc7b8 # v3.7.0
+      uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3.9.1
       with:
         node-version-file: ".nvmrc"
         cache: ${{ inputs.packageManager }}
