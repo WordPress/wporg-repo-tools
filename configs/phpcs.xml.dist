@@ -58,7 +58,7 @@
     </rule>
 
     <rule ref="PHPCompatibilityWP">
-        <config name="testVersion" value="7.4-" />
+        <config name="testVersion" value="8.1-" />
     </rule>
 
     <!-- Custom project rules go here -->

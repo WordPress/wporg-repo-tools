@@ -21,9 +21,9 @@ runs:
         sudo apt install subversion
 
     - name: Setup PHP with PECL extension
-      uses: shivammathur/setup-php@4bd44f22a98a19e0950cbad5f31095157cc9621b # v2.25.4 
+      uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
       with:
-        php-version: "7.4"
+        php-version: "8.1"
       env:
         COMPOSER_TOKEN: ${{ inputs.token }}
 
@@ -31,7 +31,6 @@ runs:
       shell: bash
       run: |
         composer install || composer update wporg/*
-        composer require rmccue/requests:1.8.1
 
     - name: Run translation script
       shell: bash
