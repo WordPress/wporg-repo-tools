@@ -7,9 +7,9 @@
 	"private": true,
 	"dependencies": {},
 	"devDependencies": {
-		"@wordpress/browserslist-config": "^4.1.2",
-		"@wordpress/env": "^4.6.0",
-		"@wordpress/scripts": "^22.5.0"
+		"@wordpress/browserslist-config": "^6.0.0",
+		"@wordpress/env": "^11.0.0",
+		"@wordpress/scripts": "^31.0.0"
 	},
 	"scripts": {
 		"setup:tools": "yarn && composer install && TEXTDOMAIN=wporg composer exec update-configs",

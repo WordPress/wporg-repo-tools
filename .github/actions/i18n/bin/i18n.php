@@ -3,8 +3,6 @@
 
 namespace WordPressdotorg\Repo_Tools\Bin\I18N;
 
-use Requests;
-
 function get_workspace_path() {
 	$workspace_path = getenv( 'GITHUB_WORKSPACE' );
 	if ( ! $workspace_path ) {
@@ -13,7 +11,44 @@ function get_workspace_path() {
 	return $workspace_path;
 }
 
-require_once get_workspace_path() . '/vendor/autoload.php';
+/**
+ * Perform an HTTP GET request using file_get_contents.
+ *
+ * @param string $url The URL to fetch.
+ *
+ * @return object Object with status_code, body, and headers properties.
+ */
+function http_get( $url ) {
+	$context = stream_context_create(
+		[
+			'http' => [
+				'user_agent'      => 'WordPress.org Repo Tools/1.0; https://github.com/WordPress/wporg-repo-tools',
+				'ignore_errors'   => true,
+			],
+		]
+	);
+
+	$body        = file_get_contents( $url, false, $context );
+	$status_code = 0;
+	$headers     = [];
+
+	if ( isset( $http_response_header ) ) {
+		foreach ( $http_response_header as $header ) {
+			if ( preg_match( '|^HTTP/\S+\s+(\d+)|', $header, $match ) ) {
+				$status_code = intval( $match[1] );
+			} elseif ( str_contains( $header, ':' ) ) {
+				[ $key, $value ]                    = explode( ':', $header, 2 );
+				$headers[ strtolower( trim( $key ) ) ] = trim( $value );
+			}
+		}
+	}
+
+	return (object) [
+		'status_code' => $status_code,
+		'body'        => $body,
+		'headers'     => $headers,
+	];
+}
 
 class Generate_Translation_Strings {
 
@@ -94,7 +129,7 @@ class Generate_Translation_Strings {
 	public function get_taxonomies() {
 		$endpoint = $this->endpoint_base . 'taxonomies';
 
-		$response = Requests::get( $endpoint );
+		$response = http_get( $endpoint );
 
 		if ( 200 !== $response->status_code ) {
 			die( 'Could not retrieve taxonomy data.' );
@@ -129,7 +164,7 @@ class Generate_Translation_Strings {
 		$page        = 1;
 		$total_pages = 1;
 
-		$response = Requests::get( $endpoint );
+		$response = http_get( $endpoint );
 
 		if ( isset( $response->headers['x-wp-totalpages'] ) ) {
 			$total_pages = intval( $response->headers['x-wp-totalpages'] );
@@ -171,7 +206,7 @@ class Generate_Translation_Strings {
 			}
 
 			if ( ! empty( $links['next'] ) ) {
-				$response = Requests::get( $links['next'] );
+				$response = http_get( $links['next'] );
 			}
 
 			$page ++;
@@ -188,7 +223,7 @@ class Generate_Translation_Strings {
 	public function get_post_types() {
 		$endpoint = $this->endpoint_base . 'types';
 
-		$response = Requests::get( $endpoint );
+		$response = http_get( $endpoint );
 
 		if ( 200 !== $response->status_code ) {
 			die( 'Could not retrieve taxonomy data.' );
@@ -221,7 +256,7 @@ class Generate_Translation_Strings {
 		$page        = 1;
 		$total_pages = 1;
 
-		$response  = Requests::get( $endpoint );
+		$response  = http_get( $endpoint );
 
 		if ( isset( $response->headers['x-wp-totalpages'] ) ) {
 			$total_pages = intval( $response->headers['x-wp-totalpages'] );
@@ -263,7 +298,7 @@ class Generate_Translation_Strings {
 			}
 
 			if ( ! empty( $links['next'] ) ) {
-				$response = Requests::get( $links['next'] );
+				$response = http_get( $links['next'] );
 			}
 
 			$page++;

@@ -22,15 +22,15 @@ runs:
         sudo apt install subversion
 
     - name: Install NodeJS
-      uses: actions/setup-node@3235b876344d2a9aa001b8d1453c930bba69e610 # v3.9.1
+      uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version-file: ".nvmrc"
         cache: ${{ inputs.packageManager }}
 
     - name: Setup PHP with PECL extension
-      uses: shivammathur/setup-php@4bd44f22a98a19e0950cbad5f31095157cc9621b # v2.25.4 
+      uses: shivammathur/setup-php@44454db4f0199b8b9685a5d763dc37cbf79108e1 # v2.36.0
       with:
-        php-version: "7.4"
+        php-version: "8.1"
       env:
         COMPOSER_TOKEN: ${{ inputs.token }}
 
