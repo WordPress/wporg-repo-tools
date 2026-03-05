@@ -23,6 +23,11 @@ module.exports = {
 
 	rules: {
 		/*
+		 * WordPress packages are script dependencies provided at runtime, not installed via npm.
+		 */
+		'import/no-unresolved': [ 'error', { ignore: [ '^@wordpress/' ] } ],
+
+		/*
 		 * Set up our text domain.
 		 */
 		'@wordpress/i18n-text-domain': [ 'error', { allowedTextDomain: [ '${TEXTDOMAIN}' ] } ],
