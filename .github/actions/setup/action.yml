@@ -11,6 +11,11 @@ inputs:
     type: string
     required: false
     default: "yarn"
+  skip-build:
+    description: "Skip the build step"
+    type: string
+    required: false
+    default: "false"
 
 
 runs:
@@ -44,7 +49,7 @@ runs:
 
     - name: Build all included projects (yarn)
       shell: bash
-      if: ${{ 'yarn' == inputs.packageManager }}
+      if: ${{ inputs.packageManager == 'yarn' && inputs.skip-build != 'true' }}
       run: yarn workspaces run build
 
     - name: Install all dependencies (npm)
@@ -57,5 +62,5 @@ runs:
 
     - name: Build all included projects (npm)
       shell: bash
-      if: ${{ 'npm' == inputs.packageManager }}
+      if: ${{ inputs.packageManager == 'npm' && inputs.skip-build != 'true' }}
       run: npm run build --workspaces --if-present
