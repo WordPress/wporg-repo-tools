@@ -39,6 +39,18 @@ runs:
       env:
         COMPOSER_TOKEN: ${{ inputs.token }}
 
+    - name: Get Composer cache directory
+      id: composer-cache
+      shell: bash
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache Composer dependencies
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: composer-
+
     - name: Install all dependencies (yarn)
       shell: bash
       if: ${{ 'yarn' == inputs.packageManager }}
