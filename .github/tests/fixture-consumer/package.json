@@ -9,7 +9,7 @@
 	"scripts": {
 		"setup:tools": "echo 'setup:tools ran successfully'",
 		"lint:php": "echo 'lint:php ran successfully'",
-		"test:php": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/$(basename \"$PWD\") phpunit -c tests/phpunit.xml.dist"
+		"test:php": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/$(basename \"$PWD\") ./vendor/bin/phpunit -c tests/phpunit.xml.dist"
 	},
 	"devDependencies": {
 		"@wordpress/env": "^11.0.0"
