@@ -4,5 +4,8 @@
 	"license": "GPL-2.0-or-later",
 	"require": {
 		"php": "^8.4"
+	},
+	"require-dev": {
+		"yoast/phpunit-polyfills": "^3.0"
 	}
 }
