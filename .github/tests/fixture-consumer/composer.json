@@ -1,0 +1,8 @@
+{
+	"name": "wporg/test-consumer-fixture",
+	"description": "Minimal consumer fixture used to validate the composite actions in this repo.",
+	"license": "GPL-2.0-or-later",
+	"require": {
+		"php": "^8.4"
+	}
+}
