@@ -1,0 +1,9 @@
+{
+	"core": null,
+	"plugins": [
+		"."
+	],
+	"themes": [],
+	"phpVersion": "8.4",
+	"testsEnvironment": false
+}
