@@ -32,19 +32,25 @@ runs:
         node-version-file: ".nvmrc"
         cache: ${{ inputs.packageManager }}
 
+    # The github-token input is blanked so setup-php does not write a
+    # github-oauth entry to ~/.composer/auth.json. With a JWT-format
+    # GITHUB_TOKEN, that entry trips composer's BaseIO validator (it
+    # rejects `-` in the token's base64url signature segment).
+    # See https://github.com/composer/composer/issues/12849.
+    # Composer authentication is provided via the COMPOSER_AUTH env on
+    # the composer steps below, which uses http-basic and is not
+    # subject to that regex.
     - name: Setup PHP with PECL extension
       uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
       with:
         php-version: "8.4"
-      env:
-        # Use http-basic auth instead of COMPOSER_TOKEN to work around
-        # https://github.com/composer/composer/issues/12849 — Composer's
-        # GitHub token validator rejects `-` in JWT-format GITHUB_TOKEN values.
-        COMPOSER_AUTH: '{"http-basic":{"github.com":{"username":"x-access-token","password":"${{ inputs.token }}"}}}'
+        github-token: ""
 
     - name: Install all dependencies (yarn)
       shell: bash
       if: ${{ 'yarn' == inputs.packageManager }}
+      env:
+        COMPOSER_AUTH: '{"http-basic":{"github.com":{"username":"x-access-token","password":"${{ inputs.token }}"}}}'
       run: |
         composer install || composer update wporg/*
         yarn
@@ -58,6 +64,8 @@ runs:
     - name: Install all dependencies (npm)
       shell: bash
       if: ${{ 'npm' == inputs.packageManager }}
+      env:
+        COMPOSER_AUTH: '{"http-basic":{"github.com":{"username":"x-access-token","password":"${{ inputs.token }}"}}}'
       run: |
         composer install || composer update wporg/*
         npm install
