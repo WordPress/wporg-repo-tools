@@ -1,0 +1,123 @@
+name: Validate composite actions
+
+# Exercises the composite actions in this repo against the minimal consumer
+# fixture under .github/tests/fixture-consumer/. The fixture is staged at
+# the workflow's working directory so each composite action sees what a real
+# consumer repo looks like (composer.json, package.json, .nvmrc, lockfiles,
+# .wp-env.json, plugin bootstrap, tests/).
+
+on:
+  pull_request:
+    paths:
+      - ".github/actions/**"
+      - ".github/tests/**"
+      - ".github/workflows/validate-actions.yml"
+  push:
+    branches:
+      - trunk
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    name: setup (${{ matrix.packageManager }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        packageManager:
+          - yarn
+          - npm
+    steps:
+      - name: Check out this repo as the action source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: action-source
+
+      - name: Stage the consumer fixture at the workspace root
+        shell: bash
+        run: cp -a action-source/.github/tests/fixture-consumer/. .
+
+      - name: Run setup action
+        uses: ./action-source/.github/actions/setup
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          packageManager: ${{ matrix.packageManager }}
+          skip-build: "true"
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo as the action source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: action-source
+
+      - name: Stage the consumer fixture at the workspace root
+        shell: bash
+        run: cp -a action-source/.github/tests/fixture-consumer/. .
+
+      - name: Run setup action (yarn, with build)
+        uses: ./action-source/.github/actions/setup
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          packageManager: yarn
+
+      - name: Run lint action
+        uses: ./action-source/.github/actions/lint
+
+  i18n:
+    name: i18n
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo as the action source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: action-source
+
+      - name: Stage the consumer fixture at the workspace root
+        shell: bash
+        run: cp -a action-source/.github/tests/fixture-consumer/. .
+
+      # The i18n action's final step is `git checkout composer.json` to undo
+      # any modifications composer install made. Real consumers are always
+      # actions/checkout-ed git repos; the staged fixture isn't, so init a
+      # throwaway repo here and stage composer.json so the reset has an
+      # index entry to restore from.
+      - name: Init fixture as git repo for the i18n reset step
+        shell: bash
+        run: |
+          git init -q
+          git add composer.json
+
+      - name: Run i18n action
+        uses: ./action-source/.github/actions/i18n
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: "--no_taxonomies --no_post_types"
+
+  test-php:
+    name: test-php
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repo as the action source
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          path: action-source
+
+      - name: Stage the consumer fixture at the workspace root
+        shell: bash
+        run: cp -a action-source/.github/tests/fixture-consumer/. .
+
+      - name: Run setup action (yarn)
+        uses: ./action-source/.github/actions/setup
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          packageManager: yarn
+          skip-build: "true"
+
+      - name: Run test-php action
+        uses: ./action-source/.github/actions/test-php
