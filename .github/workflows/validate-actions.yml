@@ -82,6 +82,17 @@ jobs:
         shell: bash
         run: cp -a action-source/.github/tests/fixture-consumer/. .
 
+      # The i18n action's final step is `git checkout composer.json` to undo
+      # any modifications composer install made. Real consumers are always
+      # actions/checkout-ed git repos; the staged fixture isn't, so init a
+      # throwaway repo here and stage composer.json so the reset has an
+      # index entry to restore from.
+      - name: Init fixture as git repo for the i18n reset step
+        shell: bash
+        run: |
+          git init -q
+          git add composer.json
+
       - name: Run i18n action
         uses: ./action-source/.github/actions/i18n
         with:
