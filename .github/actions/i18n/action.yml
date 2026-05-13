@@ -20,24 +20,15 @@ runs:
       run: |
         sudo apt install subversion
 
-    # The github-token input is blanked so setup-php does not write a
-    # github-oauth entry to ~/.composer/auth.json. With a JWT-format
-    # GITHUB_TOKEN, that entry trips composer's BaseIO validator (it
-    # rejects `-` in the token's base64url signature segment).
-    # See https://github.com/composer/composer/issues/12849.
-    # Composer authentication is provided via COMPOSER_AUTH on the
-    # composer step below, which uses http-basic and is not subject to
-    # that regex.
     - name: Setup PHP with PECL extension
       uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
       with:
         php-version: "8.4"
-        github-token: ""
+      env:
+        COMPOSER_TOKEN: ${{ inputs.token }}
 
     - name: Install composer dependencies
       shell: bash
-      env:
-        COMPOSER_AUTH: '{"http-basic":{"github.com":{"username":"x-access-token","password":"${{ inputs.token }}"}}}'
       run: |
         composer install || composer update wporg/*
 
