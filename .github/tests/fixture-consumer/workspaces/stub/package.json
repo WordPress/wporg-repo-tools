@@ -1,0 +1,11 @@
+{
+	"name": "wporg-test-consumer-fixture-stub-workspace",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Stub workspace exercised by the lint and build steps in the composite actions.",
+	"scripts": {
+		"build": "echo 'build ran successfully'",
+		"lint:css": "echo 'lint:css ran successfully'",
+		"lint:js": "echo 'lint:js ran successfully'"
+	}
+}

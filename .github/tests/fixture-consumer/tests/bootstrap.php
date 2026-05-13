@@ -1,0 +1,5 @@
+<?php
+/**
+ * PHPUnit bootstrap that hooks into wp-env's preinstalled WordPress test suite.
+ */
+require_once '/wordpress-phpunit/includes/bootstrap.php';
