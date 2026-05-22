@@ -5,6 +5,11 @@ name: Validate composite actions
 # the workflow's working directory so each composite action sees what a real
 # consumer repo looks like (composer.json, package.json, .nvmrc, lockfiles,
 # .wp-env.json, plugin bootstrap, tests/).
+#
+# Each PHP-touching job runs on a matrix of PHP versions so we exercise the
+# minimum supported version (8.4) and the next major (8.5). For test-php we
+# also rewrite the fixture's .wp-env.json#phpVersion so wp-env's cli container
+# (where PHPUnit actually runs) uses the matrix PHP version too.
 
 on:
   pull_request:
@@ -22,7 +27,7 @@ permissions:
 
 jobs:
   setup:
-    name: setup (${{ matrix.packageManager }})
+    name: setup (${{ matrix.packageManager }}, php ${{ matrix.php-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -30,6 +35,9 @@ jobs:
         packageManager:
           - yarn
           - npm
+        php-version:
+          - "8.4"
+          - "8.5"
     steps:
       - name: Check out this repo as the action source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -46,10 +54,17 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           packageManager: ${{ matrix.packageManager }}
           skip-build: "true"
+          php-version: ${{ matrix.php-version }}
 
   lint:
-    name: lint
+    name: lint (php ${{ matrix.php-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "8.4"
+          - "8.5"
     steps:
       - name: Check out this repo as the action source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -65,13 +80,20 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           packageManager: yarn
+          php-version: ${{ matrix.php-version }}
 
       - name: Run lint action
         uses: ./action-source/.github/actions/lint
 
   i18n:
-    name: i18n
+    name: i18n (php ${{ matrix.php-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "8.4"
+          - "8.5"
     steps:
       - name: Check out this repo as the action source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -98,10 +120,17 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: "--no_taxonomies --no_post_types"
+          php-version: ${{ matrix.php-version }}
 
   test-php:
-    name: test-php
+    name: test-php (php ${{ matrix.php-version }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version:
+          - "8.4"
+          - "8.5"
     steps:
       - name: Check out this repo as the action source
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -112,12 +141,23 @@ jobs:
         shell: bash
         run: cp -a action-source/.github/tests/fixture-consumer/. .
 
+      # PHPUnit runs inside wp-env's cli container, so the wp-env phpVersion
+      # determines what PHP the tests actually execute under. Rewrite the
+      # fixture's .wp-env.json to match the matrix entry.
+      - name: Pin wp-env phpVersion to the matrix value
+        shell: bash
+        run: |
+          jq --arg v "${{ matrix.php-version }}" '.phpVersion = $v' .wp-env.json > .wp-env.json.tmp
+          mv .wp-env.json.tmp .wp-env.json
+          cat .wp-env.json
+
       - name: Run setup action (yarn)
         uses: ./action-source/.github/actions/setup
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           packageManager: yarn
           skip-build: "true"
+          php-version: ${{ matrix.php-version }}
 
       - name: Run test-php action
         uses: ./action-source/.github/actions/test-php
