@@ -6,6 +6,9 @@
 	"support": {
 		"issues": "https://github.com/WordPress/wporg-repo-tools/issues"
 	},
+	"require": {
+		"php": "^8.4"
+	},
 	"bin": [
 		"bin/update-configs"
 	]

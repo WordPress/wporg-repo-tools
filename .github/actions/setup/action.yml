@@ -16,6 +16,11 @@ inputs:
     type: string
     required: false
     default: "false"
+  php-version:
+    description: "PHP version to install on the runner."
+    type: string
+    required: false
+    default: "8.4"
 
 
 runs:
@@ -35,7 +40,7 @@ runs:
     - name: Setup PHP with PECL extension
       uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
       with:
-        php-version: "8.4"
+        php-version: ${{ inputs.php-version }}
       env:
         COMPOSER_TOKEN: ${{ inputs.token }}
 

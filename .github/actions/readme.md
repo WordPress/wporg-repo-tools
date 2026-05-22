@@ -40,11 +40,12 @@ For example, to run the PHP Unit Tests action, add this to your workflow.
   uses: WordPress/wporg-repo-tools/.github/actions/test-php
 ```
 
-The setup action accepts one input. The `token` is required for composer to install the dependencies (the secrets are not passed through otherwise).
+The setup action accepts a few inputs. `token` is required for composer to install the dependencies (the secrets are not passed through otherwise). `php-version` defaults to `8.4` (the project minimum) and can be overridden to test against newer PHP versions; the same input is also available on the `i18n` action.
 
 ```yml
 - name: Setup
   uses: WordPress/wporg-repo-tools/.github/actions/setup
   with:
     token: ${{ secrets.GITHUB_TOKEN }}
+    php-version: "8.4"
 ```
