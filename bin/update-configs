@@ -8,6 +8,7 @@ root=${1:-$(pwd)}
 configdir="$root/vendor/wporg/wporg-repo-tools/configs"
 configs=(
   ".eslintrc.js"
+  "eslint.config.js"
   ".prettierrc.js"
   ".stylelintrc"
   "phpcs.xml.dist"
@@ -29,8 +30,8 @@ for file in "${configs[@]}"; do
     echo -n "Copying $file to $root/$file... "
 
     case $file in
-      ".eslintrc.js" | "phpcs.xml.dist" )
-        if [ -z $TEXTDOMAIN ]; then
+      ".eslintrc.js" | "eslint.config.js" | "phpcs.xml.dist" )
+        if [ -z "$TEXTDOMAIN" ]; then
           echo -e "\n${COLOR_RED}No text domain defined for $file.${COLOR_NONE}"
         fi
         sed -e "s/\${TEXTDOMAIN}/$TEXTDOMAIN/" "$configdir/$file" > "$root/$file"
