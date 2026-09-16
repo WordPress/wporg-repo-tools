@@ -6,10 +6,11 @@ name: Validate composite actions
 # consumer repo looks like (composer.json, package.json, .nvmrc, lockfiles,
 # .wp-env.json, plugin bootstrap, tests/).
 #
-# The fixture pins Node 22 in .nvmrc because @wordpress/scripts 35 depends on
-# @wordpress/e2e-test-utils-playwright, which requires Node >=22.19.0. Yarn
-# enforces a package's `engines` and fails the install; npm ignores it by
-# default, so a Node version that is too old fails the yarn jobs only.
+# The fixture pins Node 24 in .nvmrc. @wordpress/scripts 35 depends on
+# @wordpress/e2e-test-utils-playwright, which requires Node >=22.19.0, so
+# anything older fails here. Yarn enforces a package's `engines` and fails the
+# install; npm ignores it by default, so too old a Node fails the yarn jobs
+# only.
 #
 # Each PHP-touching job runs on a matrix of PHP versions so we exercise the
 # minimum supported version (8.4) and the next major (8.5). For test-php we
