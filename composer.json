@@ -6,8 +6,16 @@
 	"support": {
 		"issues": "https://github.com/WordPress/wporg-repo-tools/issues"
 	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
 	"require": {
-		"php": "^8.4"
+		"php": "^8.4",
+		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"wp-coding-standards/wpcs": "^3.0"
 	},
 	"bin": [
 		"bin/update-configs"

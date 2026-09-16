@@ -16,9 +16,28 @@ Include this in a project via Composer with something like this in your composer
 	],
 	"require-dev": {
 		"wporg/wporg-repo-tools": "dev-trunk"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
 	}
 }
 ```
+
+### Coding standards
+
+This package requires the standards that `configs/phpcs.xml.dist` refers to, so projects
+get them transitively and should not list them separately:
+
+- `squizlabs/php_codesniffer`
+- `wp-coding-standards/wpcs`
+- `phpcompatibility/phpcompatibility-wp`
+- `dealerdirect/phpcodesniffer-composer-installer`, which registers the standards' paths with PHPCS
+
+The `allow-plugins` entry above is required. Composer only reads that setting from the root
+`composer.json`, so it cannot be inherited from this package — without it the installer plugin
+is blocked and PHPCS will not find the `WordPress` or `PHPCompatibilityWP` standards.
 
 ## Scripts
 
