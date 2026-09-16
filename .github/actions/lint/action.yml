@@ -31,6 +31,14 @@ runs:
       if: ${{ 'npm' == inputs.packageManager }}
       run: npm run lint:js --workspaces --if-present
 
-    - name: Lint PHP
+    # Selected with a condition rather than by interpolating the input into the
+    # command, so the input never reaches a shell. Matches the setup action.
+    - name: Lint PHP (yarn)
       shell: bash
-      run: ${{ inputs.packageManager }} run lint:php
+      if: ${{ 'yarn' == inputs.packageManager }}
+      run: yarn run lint:php
+
+    - name: Lint PHP (npm)
+      shell: bash
+      if: ${{ 'npm' == inputs.packageManager }}
+      run: npm run lint:php
