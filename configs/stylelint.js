@@ -1,9 +1,10 @@
 /**
  * Stylelint config for WordPress.org Meta projects.
  *
- * Usage, from a project's `.stylelintrc.js`:
+ * Usage, from a project's `.stylelintrc`, which `bin/update-configs` writes as
+ * JSON rather than JavaScript:
  *
- *     module.exports = require( './vendor/wporg/wporg-repo-tools/configs/stylelint' );
+ *     { "extends": "./vendor/wporg/wporg-repo-tools/configs/stylelint.js" }
  */
 
 module.exports = {

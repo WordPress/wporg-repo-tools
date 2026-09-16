@@ -28,9 +28,19 @@
     </rule>
 
     <!--
-        The minimum PHP version Meta projects target. A project that needs to
-        test against a different version can override this by setting its own
-        `testVersion` config after the `wporg` reference.
+        The minimum PHP version Meta projects target.
+
+        PHPCS applies every `<config>` in a ruleset before it descends into a
+        `<rule ref>`, so the value set here is applied last and wins over a
+        project's own `testVersion` — regardless of where the project puts it.
+        A project that needs to check against a different version has to use
+        PHPCS's `runtime-set` command line option for `testVersion`, which does
+        take precedence, or run a separate ruleset that does not reference
+        `wporg`.
+
+        Keeping it here is deliberate: PHPCompatibility reports nothing at all
+        when `testVersion` is unset, so leaving it to each project would mean a
+        project that forgot it would silently stop checking PHP compatibility.
     -->
     <config name="testVersion" value="8.4-" />
     <rule ref="PHPCompatibilityWP" />

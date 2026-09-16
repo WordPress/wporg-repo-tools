@@ -37,6 +37,12 @@
 
         This must be set, or `WordPress.WP.I18n` silently stops checking text
         domains altogether rather than reporting a violation.
+
+        It takes effect here only because the `wporg` standard does not also
+        define `text_domain`. PHPCS applies a ruleset's `<config>` values before
+        descending into a `<rule ref>`, so anything the standard sets would be
+        applied last and win — which is what happens with `testVersion`. Do not
+        add `text_domain` to the shared standard without revisiting this.
     -->
     <config name="text_domain" value="${TEXTDOMAIN}" />
 

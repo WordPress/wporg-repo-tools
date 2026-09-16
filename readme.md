@@ -89,7 +89,17 @@ Both ESLint configs are generated from the same rule set in `configs/rules.js`, 
 has to change in one place. A project needs whichever one matches its ESLint version — ESLint 9
 ignores `.eslintrc.js`, and ESLint 8 ignores `eslint.config.js`.
 
-Project-specific additions go in the generated file, alongside the call it already contains.
+Project-specific additions go in the generated file, alongside the call it already contains. The
+exception is `.prettierrc.js`, which is a bare re-export — overriding a setting there means
+spreading it first:
+
+```js
+module.exports = {
+	...require( './vendor/wporg/wporg-repo-tools/configs/prettier' ),
+	printWidth: 80,
+};
+```
+
 `update-configs` still prompts before overwriting, and a non-interactive shell answers that
 prompt with "no" — but since the stubs change far less often than the rules inside them, a
 stale stub is now much less likely to matter.

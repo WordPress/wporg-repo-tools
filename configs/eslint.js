@@ -10,8 +10,10 @@
  *
  *     module.exports = createConfig( { textDomain: 'wporg' } );
  *
- * Extra entries can be appended to the returned array, and the returned array
- * is a fresh copy on every call, so mutating it is safe.
+ * Extra entries can be appended to the returned array, which is a fresh array
+ * on every call. The entries spread from `@wordpress/eslint-plugin` are not
+ * copies, though — they are the plugin's own config objects, so mutating one in
+ * place changes it for everything else in the process. Append, don't edit.
  */
 
 /**
