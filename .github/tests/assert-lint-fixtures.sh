@@ -89,20 +89,20 @@ assert_clean() {
 }
 
 echo "Asserting the ESLint config is in effect..."
-out=$( npx wp-scripts lint-js "$fixtures/bad.js" 2>&1 ); status=$?
+out=$( ./node_modules/.bin/wp-scripts lint-js "$fixtures/bad.js" 2>&1 ); status=$?
 assert_violation "eslint id-length" "id-length" "$status" "$out"
 assert_violation "eslint text domain" "@wordpress/i18n-text-domain" "$status" "$out"
 assert_violation "eslint object-shorthand" "object-shorthand" "$status" "$out"
 
 echo "Asserting the stylelint config is in effect..."
-out=$( npx wp-scripts lint-style "$fixtures/bad.pcss" 2>&1 ); status=$?
+out=$( ./node_modules/.bin/wp-scripts lint-style "$fixtures/bad.pcss" 2>&1 ); status=$?
 assert_violation "stylelint rule-empty-line-before" "rule-empty-line-before" "$status" "$out"
 assert_violation "stylelint max-line-length" "@stylistic/max-line-length" "$status" "$out"
 
 echo "Asserting the PHPCS standard is in effect..."
 out=$( ./vendor/bin/phpcs --standard=phpcs.xml.dist --no-colors -s "$fixtures/bad.php" 2>&1 ); status=$?
 assert_violation "phpcs text domain" "WordPress.WP.I18n.TextDomainMismatch" "$status" "$out"
-assert_violation "phpcs PHP version target" "PHPCompatibility.FunctionDeclarations" "$status" "$out"
+assert_violation "phpcs PHP version target" "PHPCompatibility.FunctionDeclarations.RemovedImplicitlyNullableParam" "$status" "$out"
 
 echo "Asserting the standard's exclusions are in effect..."
 out=$( ./vendor/bin/phpcs --standard=phpcs.xml.dist --no-colors -s "$fixtures/clean.php" 2>&1 ); status=$?

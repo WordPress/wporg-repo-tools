@@ -27,6 +27,9 @@ on:
       - "composer.json"
       - "composer.lock"
       - "configs/**"
+      # The PHPCS assertions exist to guard this standard, so a change to it
+      # has to run them.
+      - "wporg/**"
       - "bin/**"
   push:
     branches:

@@ -58,4 +58,3 @@ The lint action takes `packageManager`, which defaults to `yarn`. Pass `npm` for
   with:
     packageManager: npm
 ```
-

@@ -29,18 +29,18 @@ runs:
       if: ${{ 'yarn' == inputs.packageManager }}
       run: yarn workspaces run lint:js
 
-    # The npm legs use --if-present, which skips a workspace that lacks the
-    # script; `yarn workspaces run` fails in that case. The asymmetry is
-    # inherent to the two tools, not an oversight.
+    # No --if-present: npm would then skip a workspace whose lint script is
+    # missing or misnamed and still report success, where the yarn leg fails.
+    # Both legs should mean the same thing.
     - name: Lint CSS (npm)
       shell: bash
       if: ${{ 'npm' == inputs.packageManager }}
-      run: npm run lint:css --workspaces --if-present
+      run: npm run lint:css --workspaces
 
     - name: Lint JS (npm)
       shell: bash
       if: ${{ 'npm' == inputs.packageManager }}
-      run: npm run lint:js --workspaces --if-present
+      run: npm run lint:js --workspaces
 
     # Selected with a condition rather than by interpolating the input into the
     # command, so the input never reaches a shell. Matches the setup action.
