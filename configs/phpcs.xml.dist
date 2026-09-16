@@ -17,8 +17,8 @@
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>*/build/*</exclude-pattern>
 
-    <!-- Show sniff codes in all reports -->
-    <arg value="psn" />
+    <!-- Show progress and sniff codes in all reports. -->
+    <arg value="ps" />
     <arg name="colors" />
 
     <!-- Scan all (php) files in the current folder and subfolders -->
@@ -58,9 +58,8 @@
         </properties>
     </rule>
 
-    <rule ref="PHPCompatibilityWP">
-        <config name="testVersion" value="8.4-" />
-    </rule>
+    <config name="testVersion" value="8.4-" />
+    <rule ref="PHPCompatibilityWP" />
 
     <!-- Custom project rules go here -->
 

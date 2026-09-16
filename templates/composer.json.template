@@ -5,6 +5,14 @@
 	"support": {
 		"issues": "https://github.com/WordPress/wporg-example/issues"
 	},
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/WordPress/wporg-repo-tools"
+		}
+	],
+	"minimum-stability": "alpha",
+	"prefer-stable": true,
 	"config": {
 		"platform": {
 			"php": "8.4"
@@ -17,8 +25,7 @@
 		"php": "^8.4"
 	},
 	"require-dev" : {
-		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"wp-coding-standards/wpcs": "^3.0",
+		"wporg/wporg-repo-tools": "dev-trunk",
 		"phpunit/phpunit": "^10.5",
 		"spatie/phpunit-watcher": "^1.24",
 		"yoast/phpunit-polyfills": "^2.0"
