@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<ruleset name="wporg">
+    <description>Coding standards for WordPress.org Meta projects.</description>
+
+    <!--
+        This ruleset is installed as a PHPCS standard, not copied into projects.
+        `dealerdirect/phpcodesniffer-composer-installer` registers it during
+        `composer install`, so projects reference it by name:
+
+            <rule ref="wporg" />
+
+        Project-level concerns — which files to scan, which paths to ignore, the
+        text domain — belong in the project's own `phpcs.xml.dist`. See
+        `configs/phpcs.xml.dist` for the template that ships with this package.
+    -->
+
+    <rule ref="WordPress">
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax.Found" />
+        <exclude name="Universal.Operators.DisallowShortTernary.Found" />
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
+
+        <exclude name="Generic.Commenting.DocComment.MissingShort" />
+        <exclude name="Squiz.Commenting.FileComment.Missing" />
+        <exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
+        <exclude name="Squiz.Commenting.FunctionComment.MissingParamTag" />
+        <exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
+        <exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+    </rule>
+
+    <!--
+        The minimum PHP version Meta projects target.
+
+        PHPCS applies every `<config>` in a ruleset before it descends into a
+        `<rule ref>`, so the value set here is applied last and wins over a
+        project's own `testVersion` — regardless of where the project puts it.
+        A project that needs to check against a different version has to use
+        PHPCS's `runtime-set` command line option for `testVersion`, which does
+        take precedence, or run a separate ruleset that does not reference
+        `wporg`.
+
+        Keeping it here is deliberate: PHPCompatibility reports nothing at all
+        when `testVersion` is unset, so leaving it to each project would mean a
+        project that forgot it would silently stop checking PHP compatibility.
+    -->
+    <config name="testVersion" value="8.4-" />
+    <rule ref="PHPCompatibilityWP" />
+
+</ruleset>
