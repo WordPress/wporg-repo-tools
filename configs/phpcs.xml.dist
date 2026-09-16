@@ -58,11 +58,6 @@
         </properties>
     </rule>
 
-    <!--
-        `testVersion` must be a direct child of `<ruleset>`; PHPCS ignores `<config>`
-        nested inside a `<rule>` block, which leaves PHPCompatibility without a target
-        version and aborts the run.
-    -->
     <config name="testVersion" value="8.4-" />
     <rule ref="PHPCompatibilityWP" />
 
