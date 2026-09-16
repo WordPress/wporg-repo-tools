@@ -17,8 +17,8 @@
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>*/build/*</exclude-pattern>
 
-    <!-- Show sniff codes in all reports -->
-    <arg value="psn" />
+    <!-- Show sniff codes in all reports, and report warnings as well as errors. -->
+    <arg value="ps" />
     <arg name="colors" />
 
     <!-- Scan all (php) files in the current folder and subfolders -->
