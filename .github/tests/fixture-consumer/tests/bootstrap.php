@@ -8,5 +8,6 @@
  * Instead, point WP_TESTS_PHPUNIT_POLYFILLS_PATH at the polyfills directory
  * and let the WP test bootstrap load only its autoloader.
  */
+
 define( 'WP_TESTS_PHPUNIT_POLYFILLS_PATH', __DIR__ . '/../vendor/yoast/phpunit-polyfills' );
 require_once '/wordpress-phpunit/includes/bootstrap.php';

@@ -2,11 +2,28 @@
 	"name": "wporg/test-consumer-fixture",
 	"description": "Minimal consumer fixture used to validate the composite actions in this repo.",
 	"license": "GPL-2.0-or-later",
+	"repositories": [
+		{
+			"type": "path",
+			"url": "action-source"
+		}
+	],
+	"minimum-stability": "alpha",
+	"prefer-stable": true,
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	},
 	"require": {
 		"php": "^8.4"
 	},
 	"require-dev": {
+		"wporg/wporg-repo-tools": "*@dev",
 		"phpunit/phpunit": "^9.6",
 		"yoast/phpunit-polyfills": "^3.0"
+	},
+	"scripts": {
+		"lint": "phpcs --extensions=php -s -p"
 	}
 }

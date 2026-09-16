@@ -17,6 +17,11 @@ on:
       - ".github/actions/**"
       - ".github/tests/**"
       - ".github/workflows/validate-actions.yml"
+      # The fixture installs this package, so resolution is under test too.
+      - "composer.json"
+      - "composer.lock"
+      - "configs/**"
+      - "bin/**"
   push:
     branches:
       - trunk
@@ -81,6 +86,22 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           packageManager: yarn
           php-version: ${{ matrix.php-version }}
+
+      - name: Assert the shared coding standards resolved
+        shell: bash
+        run: |
+          test -f phpcs.xml.dist || {
+            echo "::error::update-configs did not produce phpcs.xml.dist"
+            exit 1
+          }
+          installed=$(./vendor/bin/phpcs -i)
+          echo "$installed"
+          for standard in WordPress PHPCompatibilityWP; do
+            grep -q "$standard" <<<"$installed" || {
+              echo "::error::PHPCS standard $standard is not registered"
+              exit 1
+            }
+          done
 
       - name: Run lint action
         uses: ./action-source/.github/actions/lint

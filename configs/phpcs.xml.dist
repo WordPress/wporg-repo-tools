@@ -17,7 +17,7 @@
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>*/build/*</exclude-pattern>
 
-    <!-- Show sniff codes in all reports, and report warnings as well as errors. -->
+    <!-- Show progress and sniff codes in all reports. -->
     <arg value="ps" />
     <arg name="colors" />
 

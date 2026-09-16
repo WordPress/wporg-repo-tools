@@ -49,7 +49,7 @@ runs:
       if: ${{ 'yarn' == inputs.packageManager }}
       run: |
         composer install || composer update wporg/* || {
-          echo "::error::Composer could not resolve dependencies. If the failure above mentions minimum-stability, your root composer.json needs minimum-stability set to alpha and prefer-stable set to true; wporg-repo-tools tracks the PHPCompatibility 3.0 alpha. See https://github.com/WordPress/wporg-repo-tools#coding-standards"
+          echo "::error::Composer could not resolve dependencies. A conflict on wp-coding-standards/wpcs, squizlabs/php_codesniffer, phpcompatibility/phpcompatibility-wp or dealerdirect/phpcodesniffer-composer-installer means your own require-dev still pins one of them: remove it, wporg-repo-tools provides them now. A minimum-stability error means your root composer.json needs minimum-stability set to alpha and prefer-stable set to true. See https://github.com/WordPress/wporg-repo-tools#coding-standards"
           exit 1
         }
         yarn
@@ -65,7 +65,7 @@ runs:
       if: ${{ 'npm' == inputs.packageManager }}
       run: |
         composer install || composer update wporg/* || {
-          echo "::error::Composer could not resolve dependencies. If the failure above mentions minimum-stability, your root composer.json needs minimum-stability set to alpha and prefer-stable set to true; wporg-repo-tools tracks the PHPCompatibility 3.0 alpha. See https://github.com/WordPress/wporg-repo-tools#coding-standards"
+          echo "::error::Composer could not resolve dependencies. A conflict on wp-coding-standards/wpcs, squizlabs/php_codesniffer, phpcompatibility/phpcompatibility-wp or dealerdirect/phpcodesniffer-composer-installer means your own require-dev still pins one of them: remove it, wporg-repo-tools provides them now. A minimum-stability error means your root composer.json needs minimum-stability set to alpha and prefer-stable set to true. See https://github.com/WordPress/wporg-repo-tools#coding-standards"
           exit 1
         }
         npm install
