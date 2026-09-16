@@ -8,10 +8,11 @@
 	],
 	"scripts": {
 		"setup:tools": "TEXTDOMAIN=wporg composer exec update-configs",
-		"lint:php": "composer lint wporg-test-consumer-fixture.php tests",
+		"lint:php": "composer lint wporg-test-consumer-fixture.php tests lint-fixtures/clean.php",
 		"test:php": "wp-env run cli --env-cwd=/var/www/html/wp-content/plugins/$(basename \"$PWD\") ./vendor/bin/phpunit -c tests/phpunit.xml.dist"
 	},
 	"devDependencies": {
-		"@wordpress/env": "^11.15.0"
+		"@wordpress/env": "^11.15.0",
+		"@wordpress/scripts": "^35.0.0"
 	}
 }

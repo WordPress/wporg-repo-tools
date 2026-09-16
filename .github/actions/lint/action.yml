@@ -1,17 +1,36 @@
 name: "Lint"
 description: "Run all linters"
 
+inputs:
+  packageManager:
+    description: "Package manager to use"
+    type: string
+    required: false
+    default: "yarn"
+
 runs:
   using: "composite"
   steps:
-    - name: Lint CSS
+    - name: Lint CSS (yarn)
       shell: bash
+      if: ${{ 'yarn' == inputs.packageManager }}
       run: yarn workspaces run lint:css
 
-    - name: Lint JS
+    - name: Lint JS (yarn)
       shell: bash
+      if: ${{ 'yarn' == inputs.packageManager }}
       run: yarn workspaces run lint:js
+
+    - name: Lint CSS (npm)
+      shell: bash
+      if: ${{ 'npm' == inputs.packageManager }}
+      run: npm run lint:css --workspaces --if-present
+
+    - name: Lint JS (npm)
+      shell: bash
+      if: ${{ 'npm' == inputs.packageManager }}
+      run: npm run lint:js --workspaces --if-present
 
     - name: Lint PHP
       shell: bash
-      run: yarn lint:php
+      run: ${{ inputs.packageManager }} run lint:php

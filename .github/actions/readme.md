@@ -42,6 +42,16 @@ For example, to run the PHP Unit Tests action, add this to your workflow.
 
 The setup action accepts a few inputs. `token` is required for composer to install the dependencies (the secrets are not passed through otherwise). `php-version` defaults to `8.4` (the project minimum) and can be overridden to test against newer PHP versions; the same input is also available on the `i18n` action.
 
+The lint action takes `packageManager`, which defaults to `yarn`. Pass `npm` for projects that use npm workspaces, so it runs `npm run lint:* --workspaces` instead of `yarn workspaces run lint:*`:
+
+```yml
+- name: Lint
+  uses: WordPress/wporg-repo-tools/.github/actions/lint
+  with:
+    packageManager: npm
+```
+
+
 ```yml
 - name: Setup
   uses: WordPress/wporg-repo-tools/.github/actions/setup

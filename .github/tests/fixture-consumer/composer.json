@@ -5,7 +5,10 @@
 	"repositories": [
 		{
 			"type": "path",
-			"url": "action-source"
+			"url": "action-source",
+			"options": {
+				"symlink": false
+			}
 		}
 	],
 	"minimum-stability": "alpha",

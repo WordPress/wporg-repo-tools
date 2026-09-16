@@ -62,11 +62,14 @@ jobs:
           php-version: ${{ matrix.php-version }}
 
   lint:
-    name: lint (php ${{ matrix.php-version }})
+    name: lint (${{ matrix.packageManager }}, php ${{ matrix.php-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        packageManager:
+          - yarn
+          - npm
         php-version:
           - "8.4"
           - "8.5"
@@ -80,11 +83,11 @@ jobs:
         shell: bash
         run: cp -a action-source/.github/tests/fixture-consumer/. .
 
-      - name: Run setup action (yarn, with build)
+      - name: Run setup action (with build)
         uses: ./action-source/.github/actions/setup
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          packageManager: yarn
+          packageManager: ${{ matrix.packageManager }}
           php-version: ${{ matrix.php-version }}
 
       - name: Assert the shared coding standards resolved
@@ -96,15 +99,26 @@ jobs:
           }
           installed=$(./vendor/bin/phpcs -i)
           echo "$installed"
-          for standard in WordPress PHPCompatibilityWP; do
+          for standard in wporg WordPress PHPCompatibilityWP; do
             grep -q "$standard" <<<"$installed" || {
               echo "::error::PHPCS standard $standard is not registered"
               exit 1
             }
           done
 
+      # Runs the linters over conforming code. Proves they execute and that a
+      # rule change has not made the shared config reject valid code.
       - name: Run lint action
         uses: ./action-source/.github/actions/lint
+        with:
+          packageManager: ${{ matrix.packageManager }}
+
+      # Runs the linters over code that violates rules this package configures.
+      # Proves the shared config is the one in effect, rather than a default
+      # that happens to be loaded, or a config that silently failed to load.
+      - name: Assert the shared configs catch violations
+        shell: bash
+        run: ./action-source/.github/tests/assert-lint-fixtures.sh
 
   i18n:
     name: i18n (php ${{ matrix.php-version }})
