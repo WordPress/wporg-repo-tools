@@ -14,18 +14,26 @@
 /**
  * Internal dependencies
  */
-const prettierConfig = require( './prettier' );
+const sharedPrettierConfig = require( './prettier' );
 
 /**
  * Build the shared rules.
  *
- * @param {Object} options            Options.
- * @param {string} options.textDomain The project's text domain, used by
- *                                    `@wordpress/i18n-text-domain`.
+ * @param {Object} options                 Options.
+ * @param {string} options.textDomain      The project's text domain, used by
+ *                                         `@wordpress/i18n-text-domain`.
+ * @param {Object} [options.prettierConfig] The Prettier settings to hand to the
+ *                                         `prettier/prettier` rule. Defaults to
+ *                                         this package's, but the generated
+ *                                         configs pass the project's own, so a
+ *                                         project that overrides a Prettier
+ *                                         setting has ESLint agree with
+ *                                         `prettier --write` rather than
+ *                                         contradict it.
  *
  * @return {Object} An ESLint `rules` object.
  */
-module.exports = ( { textDomain } ) => ( {
+module.exports = ( { textDomain, prettierConfig = sharedPrettierConfig } ) => ( {
 	/*
 	 * WordPress packages are script dependencies provided at runtime, not installed via npm.
 	 */
@@ -163,10 +171,12 @@ module.exports = ( { textDomain } ) => ( {
 	'jsdoc/require-returns-description': 'off',
 
 	/*
-	 * Import our local prettier config to be used by the prettier rule.
+	 * Hand the prettier rule an explicit config.
 	 *
-	 * `wp-scripts lint-js` does this automatically, but local eslint (ex, in code editors) does not know the
-	 * connection, and will default back to vanilla prettier configuration.
+	 * `wp-scripts lint-js` wires this up automatically, but a local eslint (in an editor, say) does not know
+	 * the connection and would fall back to vanilla prettier settings. The generated configs pass the
+	 * project's own `.prettierrc`, so overriding a setting there keeps ESLint and `prettier --write` in
+	 * agreement.
 	 */
 	'prettier/prettier': [ 'error', prettierConfig ],
 } );

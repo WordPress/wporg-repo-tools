@@ -19,12 +19,14 @@ const sharedRules = require( './rules' );
 /**
  * Build the legacy config.
  *
- * @param {Object} options            Options.
- * @param {string} options.textDomain The project's text domain.
+ * @param {Object} options                  Options.
+ * @param {string} options.textDomain       The project's text domain.
+ * @param {Object} [options.prettierConfig] The project's Prettier settings, for
+ *                                          the `prettier/prettier` rule.
  *
  * @return {Object} An eslintrc config object.
  */
-module.exports = ( { textDomain } ) => ( {
+module.exports = ( { textDomain, prettierConfig } ) => ( {
 	extends: 'plugin:@wordpress/eslint-plugin/recommended',
 
 	root: true,
@@ -42,7 +44,7 @@ module.exports = ( { textDomain } ) => ( {
 
 	ignorePatterns: [ '*.min.js' ],
 
-	rules: sharedRules( { textDomain } ),
+	rules: sharedRules( { textDomain, prettierConfig } ),
 
 	overrides: [
 		{

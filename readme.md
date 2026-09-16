@@ -71,6 +71,18 @@ strictly required, but is strongly recommended alongside `minimum-stability`:
   release wherever one satisfies a constraint, but a dependency whose constraint can only be
   satisfied by a pre-release will now resolve to that pre-release instead of failing.
 
+#### The PHP version target
+
+The `wporg` standard sets `testVersion` to `8.4-`, and a project cannot override that from its own
+`phpcs.xml.dist`. PHPCS applies every `<config>` in a ruleset before descending into a
+`<rule ref>`, so the standard's value is applied last and wins wherever the project puts it. To
+check against a different version, use PHPCS's `runtime-set` option on the command line, which
+does take precedence, or run a ruleset that does not reference `wporg`.
+
+This is deliberate: PHPCompatibility reports nothing at all when `testVersion` is unset, so
+leaving it to each project would let a project silently stop checking compatibility by forgetting
+it.
+
 ### How the configs reach a project
 
 Projects extend the configs in this package rather than holding a copy of their contents. The
@@ -89,9 +101,31 @@ Both ESLint configs are generated from the same rule set in `configs/rules.js`, 
 has to change in one place. A project needs whichever one matches its ESLint version — ESLint 9
 ignores `.eslintrc.js`, and ESLint 8 ignores `eslint.config.js`.
 
-Project-specific additions go in the generated file, alongside the call it already contains. The
-exception is `.prettierrc.js`, which is a bare re-export — overriding a setting there means
-spreading it first:
+#### Upgrading an existing project
+
+Projects that were set up before this change hold configs with the rules written out inline, and
+`update-configs` prompts before overwriting a file that already exists — a prompt a
+non-interactive shell answers with "no". A project that committed its generated configs will
+therefore keep using its old inline rules, silently, and later `composer update`s will not change
+that. Delete the generated configs once and re-run `update:tools`:
+
+```bash
+rm -f phpcs.xml.dist eslint.config.js .eslintrc.js .prettierrc.js .stylelintrc
+yarn update:tools   # or: npm run update:tools
+```
+
+Projects that keep the generated configs out of version control are unaffected, because a fresh
+checkout has nothing to overwrite.
+
+#### Adding project-specific settings
+
+Project-specific additions go in the generated file, alongside the call it already contains. Two
+things to know:
+
+- In `.eslintrc.js`, additions belong **inside** the `rules` object, next to the spread of the
+  shared rules. The eslintrc format merges shallowly, so a second `rules` key after the spread
+  would replace every shared rule at once — silently, and without failing the lint.
+- `.prettierrc.js` is a bare re-export, so overriding a setting there means spreading it first:
 
 ```js
 module.exports = {
@@ -100,9 +134,8 @@ module.exports = {
 };
 ```
 
-`update-configs` still prompts before overwriting, and a non-interactive shell answers that
-prompt with "no" — but since the stubs change far less often than the rules inside them, a
-stale stub is now much less likely to matter.
+The generated ESLint configs pass that file to the `prettier/prettier` rule, so an override there
+applies to `eslint` and `prettier --write` alike rather than leaving the two to disagree.
 
 ## Scripts
 

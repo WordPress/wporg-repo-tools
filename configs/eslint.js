@@ -29,12 +29,14 @@ const sharedRules = require( './rules' );
 /**
  * Build the flat config.
  *
- * @param {Object} options            Options.
- * @param {string} options.textDomain The project's text domain.
+ * @param {Object} options                  Options.
+ * @param {string} options.textDomain       The project's text domain.
+ * @param {Object} [options.prettierConfig] The project's Prettier settings, for
+ *                                          the `prettier/prettier` rule.
  *
  * @return {Array} A flat ESLint config array.
  */
-module.exports = ( { textDomain } ) => [
+module.exports = ( { textDomain, prettierConfig } ) => [
 	{
 		ignores: [ '**/*.min.js' ],
 	},
@@ -54,7 +56,7 @@ module.exports = ( { textDomain } ) => [
 			},
 		},
 
-		rules: sharedRules( { textDomain } ),
+		rules: sharedRules( { textDomain, prettierConfig } ),
 	},
 
 	/*

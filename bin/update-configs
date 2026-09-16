@@ -5,6 +5,17 @@ COLOR_NONE='\033[0m'
 
 root=${1:-$(pwd)}
 
+# Three of the configs below carry the text domain. Substituting an empty one
+# produces configs that look fine and quietly check less: `WordPress.WP.I18n`
+# stops verifying text domains altogether rather than reporting a violation,
+# and `@wordpress/i18n-text-domain` allows only the empty string. Fail here
+# instead, before anything is written.
+if [ -z "$TEXTDOMAIN" ]; then
+  echo -e "${COLOR_RED}No text domain defined.${COLOR_NONE}" >&2
+  echo "Set TEXTDOMAIN, for example: TEXTDOMAIN=wporg composer exec update-configs" >&2
+  exit 1
+fi
+
 configdir="$root/vendor/wporg/wporg-repo-tools/configs"
 configs=(
   ".eslintrc.js"
@@ -31,9 +42,6 @@ for file in "${configs[@]}"; do
 
     case $file in
       ".eslintrc.js" | "eslint.config.js" | "phpcs.xml.dist" )
-        if [ -z "$TEXTDOMAIN" ]; then
-          echo -e "\n${COLOR_RED}No text domain defined for $file.${COLOR_NONE}"
-        fi
         sed -e "s/\${TEXTDOMAIN}/$TEXTDOMAIN/" "$configdir/$file" > "$root/$file"
       ;;
       * )
