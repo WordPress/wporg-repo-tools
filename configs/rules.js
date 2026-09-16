@@ -1,14 +1,7 @@
 /**
  * The ESLint rules shared by every WordPress.org Meta project.
  *
- * This is the single source of truth for the rule set. Both the flat config
- * (`eslint.js`, for ESLint 9+ / `@wordpress/scripts` 32+) and the legacy
- * config (`eslintrc.js`, for ESLint 8) build on it, so a rule only ever has to
- * be changed in one place.
- *
- * Rules that differ between the two formats — `ignores`/`ignorePatterns`,
- * `globals`, the test-file overrides — live in those files instead, because
- * there is no useful way to express them once.
+ * `eslint.js` and `eslintrc.js` both build on this, so a rule changes once.
  */
 
 /**
@@ -19,17 +12,9 @@ const sharedPrettierConfig = require( './prettier' );
 /**
  * Build the shared rules.
  *
- * @param {Object} options                 Options.
- * @param {string} options.textDomain      The project's text domain, used by
- *                                         `@wordpress/i18n-text-domain`.
- * @param {Object} [options.prettierConfig] The Prettier settings to hand to the
- *                                         `prettier/prettier` rule. Defaults to
- *                                         this package's, but the generated
- *                                         configs pass the project's own, so a
- *                                         project that overrides a Prettier
- *                                         setting has ESLint agree with
- *                                         `prettier --write` rather than
- *                                         contradict it.
+ * @param {Object} options                  Options.
+ * @param {string} options.textDomain       The project's text domain.
+ * @param {Object} [options.prettierConfig] Settings for the `prettier/prettier` rule.
  *
  * @return {Object} An ESLint `rules` object.
  */
@@ -171,12 +156,8 @@ module.exports = ( { textDomain, prettierConfig = sharedPrettierConfig } ) => ( 
 	'jsdoc/require-returns-description': 'off',
 
 	/*
-	 * Hand the prettier rule an explicit config.
-	 *
-	 * `wp-scripts lint-js` wires this up automatically, but a local eslint (in an editor, say) does not know
-	 * the connection and would fall back to vanilla prettier settings. The generated configs pass the
-	 * project's own `.prettierrc`, so overriding a setting there keeps ESLint and `prettier --write` in
-	 * agreement.
+	 * `wp-scripts lint-js` wires this up itself; a local eslint would otherwise fall back to vanilla
+	 * prettier settings. The generated configs pass the project's own `.prettierrc`.
 	 */
 	'prettier/prettier': [ 'error', prettierConfig ],
 } );

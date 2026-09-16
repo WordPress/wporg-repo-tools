@@ -49,3 +49,12 @@ The setup action accepts a few inputs. `token` is required for composer to insta
     token: ${{ secrets.GITHUB_TOKEN }}
     php-version: "8.4"
 ```
+
+The lint action takes `packageManager`, which defaults to `yarn`. Pass `npm` for projects that use npm workspaces, so it runs `npm run lint:* --workspaces` instead of `yarn workspaces run lint:*`:
+
+```yml
+- name: Lint
+  uses: WordPress/wporg-repo-tools/.github/actions/lint
+  with:
+    packageManager: npm
+```

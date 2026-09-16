@@ -1,17 +1,54 @@
 name: "Lint"
 description: "Run all linters"
 
+inputs:
+  packageManager:
+    description: "Package manager to use. One of 'yarn' or 'npm'."
+    required: false
+    default: "yarn"
+
 runs:
   using: "composite"
   steps:
-    - name: Lint CSS
+    # Every step below is gated on this value, so an unrecognised one would skip
+    # them all and report success.
+    - name: Validate the package manager
       shell: bash
+      if: ${{ 'yarn' != inputs.packageManager && 'npm' != inputs.packageManager }}
+      run: |
+        echo "::error::packageManager must be 'yarn' or 'npm'."
+        exit 1
+
+    - name: Lint CSS (yarn)
+      shell: bash
+      if: ${{ 'yarn' == inputs.packageManager }}
       run: yarn workspaces run lint:css
 
-    - name: Lint JS
+    - name: Lint JS (yarn)
       shell: bash
+      if: ${{ 'yarn' == inputs.packageManager }}
       run: yarn workspaces run lint:js
 
-    - name: Lint PHP
+    # No --if-present: it would skip a workspace with a missing or misnamed lint
+    # script and still pass, where the yarn leg fails.
+    - name: Lint CSS (npm)
       shell: bash
-      run: yarn lint:php
+      if: ${{ 'npm' == inputs.packageManager }}
+      run: npm run lint:css --workspaces
+
+    - name: Lint JS (npm)
+      shell: bash
+      if: ${{ 'npm' == inputs.packageManager }}
+      run: npm run lint:js --workspaces
+
+    # Selected by condition rather than interpolated, so the input never reaches
+    # a shell.
+    - name: Lint PHP (yarn)
+      shell: bash
+      if: ${{ 'yarn' == inputs.packageManager }}
+      run: yarn run lint:php
+
+    - name: Lint PHP (npm)
+      shell: bash
+      if: ${{ 'npm' == inputs.packageManager }}
+      run: npm run lint:php

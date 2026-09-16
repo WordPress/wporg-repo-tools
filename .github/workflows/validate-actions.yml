@@ -6,6 +6,10 @@ name: Validate composite actions
 # consumer repo looks like (composer.json, package.json, .nvmrc, lockfiles,
 # .wp-env.json, plugin bootstrap, tests/).
 #
+# The fixture pins Node 24: @wordpress/scripts 35 needs >=22.19.0. Yarn enforces
+# `engines` and fails the install where npm ignores it, so too old a Node fails
+# the yarn jobs only.
+#
 # Each PHP-touching job runs on a matrix of PHP versions so we exercise the
 # minimum supported version (8.4) and the next major (8.5). For test-php we
 # also rewrite the fixture's .wp-env.json#phpVersion so wp-env's cli container
@@ -21,6 +25,8 @@ on:
       - "composer.json"
       - "composer.lock"
       - "configs/**"
+      # The PHPCS assertions guard this standard.
+      - "wporg/**"
       - "bin/**"
   push:
     branches:
@@ -62,11 +68,14 @@ jobs:
           php-version: ${{ matrix.php-version }}
 
   lint:
-    name: lint (php ${{ matrix.php-version }})
+    name: lint (${{ matrix.packageManager }}, php ${{ matrix.php-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        packageManager:
+          - yarn
+          - npm
         php-version:
           - "8.4"
           - "8.5"
@@ -80,11 +89,11 @@ jobs:
         shell: bash
         run: cp -a action-source/.github/tests/fixture-consumer/. .
 
-      - name: Run setup action (yarn, with build)
+      - name: Run setup action (with build)
         uses: ./action-source/.github/actions/setup
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          packageManager: yarn
+          packageManager: ${{ matrix.packageManager }}
           php-version: ${{ matrix.php-version }}
 
       - name: Assert the shared coding standards resolved
@@ -96,15 +105,24 @@ jobs:
           }
           installed=$(./vendor/bin/phpcs -i)
           echo "$installed"
-          for standard in WordPress PHPCompatibilityWP; do
+          for standard in wporg WordPress PHPCompatibilityWP; do
             grep -q "$standard" <<<"$installed" || {
               echo "::error::PHPCS standard $standard is not registered"
               exit 1
             }
           done
 
+      # Conforming code: proves a rule change has not made the config reject it.
       - name: Run lint action
         uses: ./action-source/.github/actions/lint
+        with:
+          packageManager: ${{ matrix.packageManager }}
+
+      # Violating code: proves the shared config is the one in effect, not a
+      # default that happened to load.
+      - name: Assert the shared configs catch violations
+        shell: bash
+        run: ./action-source/.github/tests/assert-lint-fixtures.sh
 
   i18n:
     name: i18n (php ${{ matrix.php-version }})

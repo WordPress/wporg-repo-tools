@@ -1,14 +1,7 @@
 /**
- * Legacy (eslintrc) ESLint config for WordPress.org Meta projects.
+ * Legacy ESLint config for WordPress.org Meta projects, for ESLint 8.
  *
- * For ESLint 8 / `@wordpress/scripts` below 32. Projects on newer tooling want
- * `./eslint.js`, since ESLint 9 ignores this format entirely.
- *
- * Usage, from a project's `.eslintrc.js`:
- *
- *     const createConfig = require( './vendor/wporg/wporg-repo-tools/configs/eslintrc' );
- *
- *     module.exports = createConfig( { textDomain: 'wporg' } );
+ * ESLint 9 ignores this format; those projects want `./eslint.js`.
  */
 
 /**
@@ -21,8 +14,7 @@ const sharedRules = require( './rules' );
  *
  * @param {Object} options                  Options.
  * @param {string} options.textDomain       The project's text domain.
- * @param {Object} [options.prettierConfig] The project's Prettier settings, for
- *                                          the `prettier/prettier` rule.
+ * @param {Object} [options.prettierConfig] The project's Prettier settings.
  *
  * @return {Object} An eslintrc config object.
  */

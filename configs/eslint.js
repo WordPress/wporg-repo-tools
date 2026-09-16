@@ -1,19 +1,8 @@
 /**
- * Flat ESLint config for WordPress.org Meta projects.
+ * Flat ESLint config for WordPress.org Meta projects, for ESLint 9+.
  *
- * For ESLint 9+ / `@wordpress/scripts` 32+, which ignore the legacy
- * `.eslintrc.js` format. Projects on older tooling want `./eslintrc.js`.
- *
- * Usage, from a project's `eslint.config.js`:
- *
- *     const createConfig = require( './vendor/wporg/wporg-repo-tools/configs/eslint' );
- *
- *     module.exports = createConfig( { textDomain: 'wporg' } );
- *
- * Extra entries can be appended to the returned array, which is a fresh array
- * on every call. The entries spread from `@wordpress/eslint-plugin` are not
- * copies, though — they are the plugin's own config objects, so mutating one in
- * place changes it for everything else in the process. Append, don't edit.
+ * Entries spread from `@wordpress/eslint-plugin` are that plugin's own objects,
+ * so append to the returned array rather than editing it.
  */
 
 /**
@@ -31,8 +20,7 @@ const sharedRules = require( './rules' );
  *
  * @param {Object} options                  Options.
  * @param {string} options.textDomain       The project's text domain.
- * @param {Object} [options.prettierConfig] The project's Prettier settings, for
- *                                          the `prettier/prettier` rule.
+ * @param {Object} [options.prettierConfig] The project's Prettier settings.
  *
  * @return {Array} A flat ESLint config array.
  */
