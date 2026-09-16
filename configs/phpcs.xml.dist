@@ -6,10 +6,8 @@
         1) Install PHPCS & all required code standards using `composer install`
         2) Run `composer run lint`. You can use the `-a` flag to run it interactively.
 
-        The rules themselves live in the `wporg` standard shipped by
-        wporg-repo-tools, which `composer install` registers with PHPCS. That
-        means rule changes arrive with `composer update` — this file only holds
-        project-level settings, and rarely needs to change.
+        The rules live in the `wporg` standard and arrive with `composer
+        update`; this file only holds project-level settings.
 
         See these links for useful information:
         - https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
@@ -33,16 +31,10 @@
     <rule ref="wporg" />
 
     <!--
-        Verify that the text domain is set to the desired text domain.
-
-        This must be set, or `WordPress.WP.I18n` silently stops checking text
-        domains altogether rather than reporting a violation.
-
-        It takes effect here only because the `wporg` standard does not also
-        define `text_domain`. PHPCS applies a ruleset's `<config>` values before
-        descending into a `<rule ref>`, so anything the standard sets would be
-        applied last and win — which is what happens with `testVersion`. Do not
-        add `text_domain` to the shared standard without revisiting this.
+        Must be set: without it `WordPress.WP.I18n` stops checking text domains
+        rather than reporting a violation. This works only because the `wporg`
+        standard does not also set `text_domain` — if it did, the standard would
+        win, as it does for `testVersion`.
     -->
     <config name="text_domain" value="${TEXTDOMAIN}" />
 
