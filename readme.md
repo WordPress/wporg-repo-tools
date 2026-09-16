@@ -29,13 +29,24 @@ Include this in a project via Composer with something like this in your composer
 
 ### Coding standards
 
-This package requires the standards that `configs/phpcs.xml.dist` refers to, so projects
-get them transitively and should not list them separately:
+This package ships a PHPCS standard named `wporg`, and requires the packages it builds on, so
+projects get them transitively and should not list them separately:
 
 - `squizlabs/php_codesniffer`, which provides the `phpcs` and `phpcbf` binaries
 - `wp-coding-standards/wpcs`
 - `phpcompatibility/phpcompatibility-wp`
 - `dealerdirect/phpcodesniffer-composer-installer`, which registers the standards' paths with PHPCS
+
+`composer install` registers the `wporg` standard automatically, so a project's `phpcs.xml.dist`
+only has to reference it by name:
+
+```xml
+<rule ref="wporg" />
+<config name="text_domain" value="your-text-domain" />
+```
+
+Set `text_domain`. Without it `WordPress.WP.I18n` stops checking text domains altogether rather
+than reporting a violation, so a missing value weakens the lint silently.
 
 If your project already lists any of the four packages above in its own `require-dev`, remove
 those entries. Leaving a stale constraint behind is the most likely upgrade failure: a project
@@ -48,7 +59,7 @@ this package — Composer reads them only from the root `composer.json`. `prefer
 strictly required, but is strongly recommended alongside `minimum-stability`:
 
 - `allow-plugins`, without which the installer plugin is blocked and PHPCS will not find the
-  `WordPress` or `PHPCompatibilityWP` standards.
+  `wporg`, `WordPress` or `PHPCompatibilityWP` standards.
 - `minimum-stability`, without which `phpcompatibility-wp` cannot resolve. We
   track its 3.0 alpha because the last stable release wraps a PHP engine from 2019 that knows
   nothing about PHP 8: against `testVersion 8.4-` it misses implicitly nullable parameters,
@@ -60,18 +71,28 @@ strictly required, but is strongly recommended alongside `minimum-stability`:
   release wherever one satisfies a constraint, but a dependency whose constraint can only be
   satisfied by a pre-release will now resolve to that pre-release instead of failing.
 
-### Keeping the copied configs current
+### How the configs reach a project
 
-`update-configs` copies files rather than having projects extend them, so updating this package
-is only half of an upgrade — the configs have to be recopied too. That is what `update:tools`
-does.
+Projects extend the configs in this package rather than holding a copy of their contents. The
+files `update-configs` writes are short stubs that point back into `vendor/`, so the actual
+rules arrive with `composer update` and a project's own copies rarely need to change:
 
-Be aware that the script prompts before overwriting a file that already exists, and a
-non-interactive shell answers that prompt with "no". Projects that keep the generated configs
-out of version control are unaffected, because a fresh checkout has nothing to overwrite. A
-project that commits its `phpcs.xml.dist`, though, will silently keep the old copy, and stale
-copies no longer announce themselves now that the `testVersion` bug is fixed. Delete the file
-before running `update:tools`, or run it interactively and answer the prompt.
+| Project file | Extends |
+| --- | --- |
+| `phpcs.xml.dist` | the `wporg` PHPCS standard, registered by Composer |
+| `eslint.config.js` | `configs/eslint.js` (ESLint 9+ / `@wordpress/scripts` 32+) |
+| `.eslintrc.js` | `configs/eslintrc.js` (ESLint 8) |
+| `.prettierrc.js` | `configs/prettier.js` |
+| `.stylelintrc` | `configs/stylelint.js` |
+
+Both ESLint configs are generated from the same rule set in `configs/rules.js`, so a rule only
+has to change in one place. A project needs whichever one matches its ESLint version — ESLint 9
+ignores `.eslintrc.js`, and ESLint 8 ignores `eslint.config.js`.
+
+Project-specific additions go in the generated file, alongside the call it already contains.
+`update-configs` still prompts before overwriting, and a non-interactive shell answers that
+prompt with "no" — but since the stubs change far less often than the rules inside them, a
+stale stub is now much less likely to matter.
 
 ## Scripts
 

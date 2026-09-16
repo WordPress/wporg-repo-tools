@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<ruleset name="wporg">
+    <description>Coding standards for WordPress.org Meta projects.</description>
+
+    <!--
+        This ruleset is installed as a PHPCS standard, not copied into projects.
+        `dealerdirect/phpcodesniffer-composer-installer` registers it during
+        `composer install`, so projects reference it by name:
+
+            <rule ref="wporg" />
+
+        Project-level concerns — which files to scan, which paths to ignore, the
+        text domain — belong in the project's own `phpcs.xml.dist`. See
+        `configs/phpcs.xml.dist` for the template that ships with this package.
+    -->
+
+    <rule ref="WordPress">
+        <exclude name="Universal.Arrays.DisallowShortArraySyntax.Found" />
+        <exclude name="Universal.Operators.DisallowShortTernary.Found" />
+        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
+
+        <exclude name="Generic.Commenting.DocComment.MissingShort" />
+        <exclude name="Squiz.Commenting.FileComment.Missing" />
+        <exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
+        <exclude name="Squiz.Commenting.FunctionComment.MissingParamTag" />
+        <exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
+        <exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
+    </rule>
+
+    <!--
+        The minimum PHP version Meta projects target. A project that needs to
+        test against a different version can override this by setting its own
+        `testVersion` config after the `wporg` reference.
+    -->
+    <config name="testVersion" value="8.4-" />
+    <rule ref="PHPCompatibilityWP" />
+
+</ruleset>

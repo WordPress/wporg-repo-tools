@@ -6,10 +6,15 @@
         1) Install PHPCS & all required code standards using `composer install`
         2) Run `composer run lint`. You can use the `-a` flag to run it interactively.
 
+        The rules themselves live in the `wporg` standard shipped by
+        wporg-repo-tools, which `composer install` registers with PHPCS. That
+        means rule changes arrive with `composer update` — this file only holds
+        project-level settings, and rarely needs to change.
+
         See these links for useful information:
-        - https://github.com/squizlabs/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
-        - https://github.com/squizlabs/PHP_CodeSniffer/wiki/Customisable-Sniff-Properties
-        - https://github.com/WordPress-Coding-Standards/WordPress-Coding-Standards/wiki/Customizable-sniff-properties
+        - https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Annotated-ruleset.xml
+        - https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Customisable-Sniff-Properties
+        - https://github.com/WordPress/WordPress-Coding-Standards/wiki/Customizable-sniff-properties
     -->
 
     <!-- Exclude 3rd-party files -->
@@ -25,30 +30,15 @@
     <file>.</file>
     <arg name="extensions" value="php" />
 
-    <rule ref="WordPress">
-        <exclude name="Universal.Arrays.DisallowShortArraySyntax.Found" />
-        <exclude name="Universal.Operators.DisallowShortTernary.Found" />
-        <exclude name="WordPress.Files.FileName.InvalidClassFileName" />
+    <rule ref="wporg" />
 
-        <exclude name="Generic.Commenting.DocComment.MissingShort" />
-        <exclude name="Squiz.Commenting.FileComment.Missing" />
-        <exclude name="Squiz.Commenting.FileComment.MissingPackageTag" />
-        <exclude name="Squiz.Commenting.FunctionComment.MissingParamTag" />
-        <exclude name="Squiz.Commenting.FunctionComment.MissingParamComment" />
-        <exclude name="Squiz.Commenting.InlineComment.InvalidEndChar" />
-    </rule>
+    <!--
+        Verify that the text domain is set to the desired text domain.
 
-    <!-- Verify that the text_domain is set to the desired text-domain. -->
-    <rule ref="WordPress.WP.I18n">
-        <properties>
-            <property name="text_domain" type="array">
-                <element value="${TEXTDOMAIN}" />
-            </property>
-        </properties>
-    </rule>
-
-    <config name="testVersion" value="8.4-" />
-    <rule ref="PHPCompatibilityWP" />
+        This must be set, or `WordPress.WP.I18n` silently stops checking text
+        domains altogether rather than reporting a violation.
+    -->
+    <config name="text_domain" value="${TEXTDOMAIN}" />
 
     <!-- Custom project rules go here -->
 

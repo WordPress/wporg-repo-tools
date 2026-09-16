@@ -1,0 +1,23 @@
+/**
+ * Stylelint config for WordPress.org Meta projects.
+ *
+ * Usage, from a project's `.stylelintrc.js`:
+ *
+ *     module.exports = require( './vendor/wporg/wporg-repo-tools/configs/stylelint' );
+ */
+
+module.exports = {
+	extends: '@wordpress/stylelint-config/scss-stylistic',
+	rules: {
+		'@stylistic/max-line-length': 115,
+		'no-descending-specificity': null,
+		'rule-empty-line-before': [
+			'always-multi-line',
+			{
+				except: [ 'first-nested', 'after-single-line-comment' ],
+			},
+		],
+		'selector-class-pattern': null,
+		'value-keyword-case': [ 'lower', { camelCaseSvgKeywords: true } ],
+	},
+};

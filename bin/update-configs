@@ -43,6 +43,6 @@ for file in "${configs[@]}"; do
 
     echo -e "Done.\n"
   else
-    echo "${COLOR_RED}Can't copy $configdir/$file because it does not exist.${COLOR_NONE}"
+    echo -e "${COLOR_RED}Can't copy $configdir/$file because it does not exist.${COLOR_NONE}"
   fi
 done

@@ -1,6 +1,7 @@
 {
 	"name": "wporg/wporg-repo-tools",
 	"description": "Common configurations and scripts used in projects for WordPress.org Meta",
+	"type": "phpcodesniffer-standard",
 	"homepage": "https://wordpress.org",
 	"license": "GPL-2.0-or-later",
 	"support": {
