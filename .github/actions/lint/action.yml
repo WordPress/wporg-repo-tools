@@ -10,8 +10,8 @@ inputs:
 runs:
   using: "composite"
   steps:
-    # Every step below is selected by an `if:` on this value, so an unrecognised
-    # one would skip all of them and report success without linting anything.
+    # Every step below is gated on this value, so an unrecognised one would skip
+    # them all and report success.
     - name: Validate the package manager
       shell: bash
       if: ${{ 'yarn' != inputs.packageManager && 'npm' != inputs.packageManager }}
@@ -29,9 +29,8 @@ runs:
       if: ${{ 'yarn' == inputs.packageManager }}
       run: yarn workspaces run lint:js
 
-    # No --if-present: npm would then skip a workspace whose lint script is
-    # missing or misnamed and still report success, where the yarn leg fails.
-    # Both legs should mean the same thing.
+    # No --if-present: it would skip a workspace with a missing or misnamed lint
+    # script and still pass, where the yarn leg fails.
     - name: Lint CSS (npm)
       shell: bash
       if: ${{ 'npm' == inputs.packageManager }}
@@ -42,8 +41,8 @@ runs:
       if: ${{ 'npm' == inputs.packageManager }}
       run: npm run lint:js --workspaces
 
-    # Selected with a condition rather than by interpolating the input into the
-    # command, so the input never reaches a shell. Matches the setup action.
+    # Selected by condition rather than interpolated, so the input never reaches
+    # a shell.
     - name: Lint PHP (yarn)
       shell: bash
       if: ${{ 'yarn' == inputs.packageManager }}

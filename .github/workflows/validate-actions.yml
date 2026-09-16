@@ -6,11 +6,9 @@ name: Validate composite actions
 # consumer repo looks like (composer.json, package.json, .nvmrc, lockfiles,
 # .wp-env.json, plugin bootstrap, tests/).
 #
-# The fixture pins Node 24 in .nvmrc. @wordpress/scripts 35 depends on
-# @wordpress/e2e-test-utils-playwright, which requires Node >=22.19.0, so
-# anything older fails here. Yarn enforces a package's `engines` and fails the
-# install; npm ignores it by default, so too old a Node fails the yarn jobs
-# only.
+# The fixture pins Node 24: @wordpress/scripts 35 needs >=22.19.0. Yarn enforces
+# `engines` and fails the install where npm ignores it, so too old a Node fails
+# the yarn jobs only.
 #
 # Each PHP-touching job runs on a matrix of PHP versions so we exercise the
 # minimum supported version (8.4) and the next major (8.5). For test-php we
@@ -27,8 +25,7 @@ on:
       - "composer.json"
       - "composer.lock"
       - "configs/**"
-      # The PHPCS assertions exist to guard this standard, so a change to it
-      # has to run them.
+      # The PHPCS assertions guard this standard.
       - "wporg/**"
       - "bin/**"
   push:
@@ -115,16 +112,14 @@ jobs:
             }
           done
 
-      # Runs the linters over conforming code. Proves they execute and that a
-      # rule change has not made the shared config reject valid code.
+      # Conforming code: proves a rule change has not made the config reject it.
       - name: Run lint action
         uses: ./action-source/.github/actions/lint
         with:
           packageManager: ${{ matrix.packageManager }}
 
-      # Runs the linters over code that violates rules this package configures.
-      # Proves the shared config is the one in effect, rather than a default
-      # that happens to be loaded, or a config that silently failed to load.
+      # Violating code: proves the shared config is the one in effect, not a
+      # default that happened to load.
       - name: Assert the shared configs catch violations
         shell: bash
         run: ./action-source/.github/tests/assert-lint-fixtures.sh

@@ -1,58 +1,31 @@
 #!/bin/bash
 #
-# Assert that the shared configs actually catch what they are meant to catch.
+# Assert that the shared configs catch what they are meant to catch.
 #
-# The `lint` composite action proves the linters run and that conforming code
-# passes. That is not enough on its own: a config that failed to load, or one
-# that lost a rule, would still let a green run through. This script points the
-# linters at files that violate rules *this package configures* and asserts
-# both the failure and the specific rule that produced it.
+# A config that failed to load, or lost a rule, would still let a green lint run
+# through. So point the linters at files violating rules this package
+# configures, and assert the specific rule that fires.
 #
-# Run from the staged fixture root, with the action source alongside it:
-#
-#     ./action-source/.github/tests/assert-lint-fixtures.sh
-#
-# Expects `setup:tools` to have run, so the generated configs are in place.
-#
-# Two known gaps:
-#
-# - Only the flat ESLint config is covered. The fixture pins
-#   `@wordpress/scripts` 35, whose `lint-js` looks for `eslint.config.*` and
-#   ignores eslintrc files, so `configs/eslintrc.js` goes unexercised — and
-#   that is the one most consuming projects still use. Covering it needs a
-#   second workspace pinned to `@wordpress/scripts` 27, which in turn needs an
-#   older Node than this fixture runs.
-# - Running a bare `composer lint` from the fixture root would scan
-#   `lint-fixtures/bad.php` through the ruleset's `<file>.</file>` and fail.
-#   The `lint:php` script passes explicit paths to avoid that; keep it that way
-#   when debugging the fixture by hand.
+# Run from the staged fixture root, after `setup:tools`. The legacy eslintrc
+# config is not covered; see issue #50.
 
 set -uo pipefail
 
 fixtures="action-source/.github/tests/fixture-consumer/lint-fixtures"
 failures=0
 
-# Report a passing assertion.
-#
-# $1 - Description of what held.
+# Report a passing assertion. $1 - what held.
 pass() {
 	echo "  ok: $1"
 }
 
-# Report a failing assertion and mark the run as failed.
-#
-# $1 - Description of what did not hold.
+# Report a failing assertion. $1 - what did not hold.
 fail() {
 	echo "::error::$1"
 	failures=$(( failures + 1 ))
 }
 
-# Assert that a linter rejected a file, citing a specific rule.
-#
-# $1 - Human-readable label for the check.
-# $2 - Rule or sniff code that must appear in the output.
-# $3 - Exit status the linter returned.
-# $4 - Combined output the linter produced.
+# Assert a linter rejected a file, citing a rule. $1 label, $2 rule, $3 status, $4 output.
 assert_violation() {
 	local label="$1" rule="$2" status="$3" output="$4"
 
@@ -71,11 +44,7 @@ assert_violation() {
 	pass "$label reported $rule"
 }
 
-# Assert that a linter accepted a file.
-#
-# $1 - Human-readable label for the check.
-# $2 - Exit status the linter returned.
-# $3 - Combined output the linter produced.
+# Assert a linter accepted a file. $1 label, $2 status, $3 output.
 assert_clean() {
 	local label="$1" status="$2" output="$3"
 

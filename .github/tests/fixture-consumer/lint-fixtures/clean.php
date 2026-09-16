@@ -2,9 +2,8 @@
 /**
  * PHP the shared standard accepts.
  *
- * Short array syntax and short ternaries are excluded from the standard, and
- * `wporg` is the fixture's text domain, so this file passing proves those
- * settings are in effect rather than merely that PHPCS ran.
+ * Short array syntax and short ternaries are excluded from the standard, so
+ * this file passing proves those exclusions are in effect.
  */
 
 declare( strict_types = 1 );

@@ -1,14 +1,11 @@
 /**
- * JavaScript that violates the shared configuration.
+ * JavaScript that violates the shared config.
  *
- * Every rule tripped here is one this package customises rather than one
- * inherited from `@wordpress/eslint-plugin`, so the assertions prove the
- * shared config is the one in effect — not merely that some linter ran.
- *
- * Not linted by the `lint` action; see `.github/tests/assert-lint-fixtures.sh`.
+ * Each rule below is one this package customises, not one inherited from
+ * `@wordpress/eslint-plugin`, so the assertions prove our config is in effect.
  */
 
-/* `id-length`: we set min 3, with an exception list. */
+/* `id-length`: we set min 3. */
 const ab = 1;
 
 /* `@wordpress/i18n-text-domain`: the allowed domain comes from our config. */

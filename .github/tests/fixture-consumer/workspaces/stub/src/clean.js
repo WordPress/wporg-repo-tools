@@ -1,8 +1,8 @@
 /**
- * JavaScript that satisfies the shared configuration.
+ * JavaScript the shared config accepts.
  *
- * Linted by the `lint` composite action on every run, so that an over-strict
- * rule change fails CI here rather than in a consuming project.
+ * Linted on every run, so an over-strict rule change fails here rather than in
+ * a consuming project.
  */
 
 /**
@@ -17,13 +17,7 @@ function addPrefix( label, prefix ) {
 	return `${ prefix }${ label }`;
 }
 
-/*
- * Comfortably past the 80 columns most defaults assume, and within the 115 this
- * package sets. Note that Prettier's own width is not what distinguishes the two
- * configs here: Prettier resolves `.prettierrc.js` by walking up from the linted
- * file, so it applies whichever ESLint config is loaded. What the `--config`
- * flag in this workspace's lint script buys is the ESLint rules themselves.
- */
+/* Past the 80 columns most defaults assume, within the 115 this package sets. */
 const defaultPrefixedLabel = addPrefix( 'a label of some length', 'a prefix: ' );
 
 module.exports = { addPrefix, defaultPrefixedLabel };
