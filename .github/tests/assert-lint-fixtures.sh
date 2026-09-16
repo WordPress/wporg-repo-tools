@@ -13,6 +13,19 @@
 #     ./action-source/.github/tests/assert-lint-fixtures.sh
 #
 # Expects `setup:tools` to have run, so the generated configs are in place.
+#
+# Two known gaps:
+#
+# - Only the flat ESLint config is covered. The fixture pins
+#   `@wordpress/scripts` 35, whose `lint-js` looks for `eslint.config.*` and
+#   ignores eslintrc files, so `configs/eslintrc.js` goes unexercised — and
+#   that is the one most consuming projects still use. Covering it needs a
+#   second workspace pinned to `@wordpress/scripts` 27, which in turn needs an
+#   older Node than this fixture runs.
+# - Running a bare `composer lint` from the fixture root would scan
+#   `lint-fixtures/bad.php` through the ruleset's `<file>.</file>` and fail.
+#   The `lint:php` script passes explicit paths to avoid that; keep it that way
+#   when debugging the fixture by hand.
 
 set -uo pipefail
 

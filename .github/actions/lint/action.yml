@@ -3,14 +3,22 @@ description: "Run all linters"
 
 inputs:
   packageManager:
-    description: "Package manager to use"
-    type: string
+    description: "Package manager to use. One of 'yarn' or 'npm'."
     required: false
     default: "yarn"
 
 runs:
   using: "composite"
   steps:
+    # Every step below is selected by an `if:` on this value, so an unrecognised
+    # one would skip all of them and report success without linting anything.
+    - name: Validate the package manager
+      shell: bash
+      if: ${{ 'yarn' != inputs.packageManager && 'npm' != inputs.packageManager }}
+      run: |
+        echo "::error::packageManager must be 'yarn' or 'npm'."
+        exit 1
+
     - name: Lint CSS (yarn)
       shell: bash
       if: ${{ 'yarn' == inputs.packageManager }}
@@ -21,6 +29,9 @@ runs:
       if: ${{ 'yarn' == inputs.packageManager }}
       run: yarn workspaces run lint:js
 
+    # The npm legs use --if-present, which skips a workspace that lacks the
+    # script; `yarn workspaces run` fails in that case. The asymmetry is
+    # inherent to the two tools, not an oversight.
     - name: Lint CSS (npm)
       shell: bash
       if: ${{ 'npm' == inputs.packageManager }}

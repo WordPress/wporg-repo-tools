@@ -5,7 +5,7 @@
 	"description": "Stub workspace exercised by the build and lint steps in the composite actions.",
 	"scripts": {
 		"build": "echo 'build ran successfully'",
-		"lint:css": "wp-scripts lint-style \"src/**/*.pcss\"",
-		"lint:js": "wp-scripts lint-js src"
+		"lint:css": "wp-scripts lint-style --config ../../.stylelintrc \"src/**/*.pcss\"",
+		"lint:js": "wp-scripts lint-js --config ../../eslint.config.js src"
 	}
 }

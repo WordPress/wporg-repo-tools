@@ -17,4 +17,13 @@ function addPrefix( label, prefix ) {
 	return `${ prefix }${ label }`;
 }
 
-module.exports = { addPrefix };
+/*
+ * Comfortably past the 80 columns most defaults assume, and within the 115 this
+ * package sets. Note that Prettier's own width is not what distinguishes the two
+ * configs here: Prettier resolves `.prettierrc.js` by walking up from the linted
+ * file, so it applies whichever ESLint config is loaded. What the `--config`
+ * flag in this workspace's lint script buys is the ESLint rules themselves.
+ */
+const defaultPrefixedLabel = addPrefix( 'a label of some length', 'a prefix: ' );
+
+module.exports = { addPrefix, defaultPrefixedLabel };
