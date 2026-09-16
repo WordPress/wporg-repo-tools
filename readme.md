@@ -32,7 +32,7 @@ Include this in a project via Composer with something like this in your composer
 This package requires the standards that `configs/phpcs.xml.dist` refers to, so projects
 get them transitively and should not list them separately:
 
-- `squizlabs/php_codesniffer`
+- `squizlabs/php_codesniffer`, which provides the `phpcs` and `phpcbf` binaries
 - `wp-coding-standards/wpcs`
 - `phpcompatibility/phpcompatibility-wp`
 - `dealerdirect/phpcodesniffer-composer-installer`, which registers the standards' paths with PHPCS
@@ -46,7 +46,12 @@ Composer reads both only from the root `composer.json`:
   track its 3.0 alpha because the last stable release wraps a PHP engine from 2019 that knows
   nothing about PHP 8: against `testVersion 8.4-` it misses implicitly nullable parameters,
   `E_STRICT`, `utf8_encode` and more, and reports `each()` as merely deprecated rather than
-  removed. `prefer-stable` keeps every other dependency on its stable release.
+  removed.
+
+  Note that `minimum-stability` applies to the whole root, not just to this package.
+  `prefer-stable` expresses a preference, not a guarantee: resolution still favours a stable
+  release wherever one satisfies a constraint, but a dependency whose constraint can only be
+  satisfied by a pre-release will now resolve to that pre-release instead of failing.
 
 ## Scripts
 
