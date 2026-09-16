@@ -6,6 +6,8 @@
 	"support": {
 		"issues": "https://github.com/WordPress/wporg-repo-tools/issues"
 	},
+	"minimum-stability": "alpha",
+	"prefer-stable": true,
 	"config": {
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true
@@ -14,7 +16,7 @@
 	"require": {
 		"php": "^8.4",
 		"dealerdirect/phpcodesniffer-composer-installer": "^1.0",
-		"phpcompatibility/phpcompatibility-wp": "^2.1",
+		"phpcompatibility/phpcompatibility-wp": "^3.0@alpha",
 		"wp-coding-standards/wpcs": "^3.0"
 	},
 	"bin": [

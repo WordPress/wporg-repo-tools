@@ -11,6 +11,8 @@
 			"url": "https://github.com/WordPress/wporg-repo-tools"
 		}
 	],
+	"minimum-stability": "alpha",
+	"prefer-stable": true,
 	"config": {
 		"platform": {
 			"php": "8.4"

@@ -17,6 +17,8 @@ Include this in a project via Composer with something like this in your composer
 	"require-dev": {
 		"wporg/wporg-repo-tools": "dev-trunk"
 	},
+	"minimum-stability": "alpha",
+	"prefer-stable": true,
 	"config": {
 		"allow-plugins": {
 			"dealerdirect/phpcodesniffer-composer-installer": true
@@ -35,9 +37,16 @@ get them transitively and should not list them separately:
 - `phpcompatibility/phpcompatibility-wp`
 - `dealerdirect/phpcodesniffer-composer-installer`, which registers the standards' paths with PHPCS
 
-The `allow-plugins` entry above is required. Composer only reads that setting from the root
-`composer.json`, so it cannot be inherited from this package — without it the installer plugin
-is blocked and PHPCS will not find the `WordPress` or `PHPCompatibilityWP` standards.
+Two of the settings above are required, and neither can be inherited from this package —
+Composer reads both only from the root `composer.json`:
+
+- `allow-plugins`, without which the installer plugin is blocked and PHPCS will not find the
+  `WordPress` or `PHPCompatibilityWP` standards.
+- `minimum-stability`/`prefer-stable`, without which `phpcompatibility-wp` cannot resolve. We
+  track its 3.0 alpha because the last stable release wraps a PHP engine from 2019 that knows
+  nothing about PHP 8: against `testVersion 8.4-` it misses implicitly nullable parameters,
+  `E_STRICT`, `utf8_encode` and more, and reports `each()` as merely deprecated rather than
+  removed. `prefer-stable` keeps every other dependency on its stable release.
 
 ## Scripts
 
