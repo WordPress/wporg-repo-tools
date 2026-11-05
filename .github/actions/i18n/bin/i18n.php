@@ -115,7 +115,7 @@ class Generate_Translation_Strings {
 		}
 
 		if ( ! empty( $args['post_meta'] ) ) {
-			$this->post_meta_keys = explode( ',', $args['post_meta'] );
+			$this->post_meta_keys = array_filter( array_map( 'trim', explode( ',', $args['post_meta'] ) ) );
 		}
 
 		if ( ! empty( $args['textdomain'] ) ) {
@@ -430,11 +430,17 @@ class Generate_Translation_Strings {
 				}
 
 				foreach ( $this->post_meta_keys as $key ) {
+					$value = $page['meta'][ $key ] ?? '';
+					if ( ! is_string( $value ) ) {
+						continue;
+					}
+
 					// Collapse whitespace to match consumers that keep the value on one line, like a pattern header.
-					$value = trim( preg_replace( '/\s+/', ' ', (string) ( $page['meta'][ $key ] ?? '' ) ) );
+					$value = trim( preg_replace( '/\s+/', ' ', $value ) );
 					if ( '' !== $value ) {
-						$value = addcslashes( $value, "'\\" );
-						$file_content .= "_x( '{$value}', '{$post_type['slug']} {$key}', '{$this->textdomain}' );\n";
+						$value   = addcslashes( $value, "'\\" );
+						$context = addcslashes( "{$post_type['slug']} {$key}", "'\\" );
+						$file_content .= "_x( '{$value}', '{$context}', '{$this->textdomain}' );\n";
 					}
 				}
 			}
