@@ -115,7 +115,7 @@ class Generate_Translation_Strings {
 		}
 
 		if ( ! empty( $args['post_meta'] ) ) {
-			$this->post_meta_keys = array_filter( array_map( 'trim', explode( ',', $args['post_meta'] ) ) );
+			$this->post_meta_keys = explode( ',', $args['post_meta'] );
 		}
 
 		if ( ! empty( $args['textdomain'] ) ) {
@@ -421,9 +421,6 @@ class Generate_Translation_Strings {
 				);
 			}
 
-			// Meta keys at least one post exposes as a string, to warn about the ones none does.
-			$found_meta_keys = array();
-
 			foreach ( $this->get_posts( $post_type ) as $page ) {
 				$title = addcslashes( $page['title']['rendered'], "'" );
 				$file_content .= "_x( '{$title}', '{$post_type['slug']} title', '{$this->textdomain}' );\n";
@@ -433,34 +430,15 @@ class Generate_Translation_Strings {
 				}
 
 				foreach ( $this->post_meta_keys as $key ) {
-					$value = $page['meta'][ $key ] ?? null;
-					if ( ! is_string( $value ) ) {
-						continue;
-					}
-
-					$found_meta_keys[ $key ] = true;
+					$value = $page['meta'][ $key ] ?? '';
 
 					// Collapse whitespace to match consumers that keep the value on one line, like a pattern header.
-					$value = trim( preg_replace( '/\s+/', ' ', $value ) );
+					$value = is_string( $value ) ? trim( preg_replace( '/\s+/', ' ', $value ) ) : '';
 					if ( '' !== $value ) {
-						$value         = addcslashes( $value, "'\\" );
-						$context       = addcslashes( "{$post_type['slug']} {$key}", "'\\" );
-						$file_content .= "_x( '{$value}', '{$context}', '{$this->textdomain}' );\n";
-
-						if ( 'cli' === php_sapi_name() ) {
-							echo "  {$key}: {$value}\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-						}
+						$value = addcslashes( $value, "'\\" );
+						$file_content .= "_x( '{$value}', '{$post_type['slug']} {$key}', '{$this->textdomain}' );\n";
 					}
 				}
-			}
-
-			foreach ( array_diff( $this->post_meta_keys, array_keys( $found_meta_keys ) ) as $key ) {
-				// The `::warning::` prefix annotates the workflow run.
-				printf(
-					"::warning::No %s has a string value for the %s meta in the REST API, so none was extracted.\n",
-					$post_type['slug'], // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-					$key // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-				);
 			}
 		}
 
