@@ -74,6 +74,13 @@ class Generate_Translation_Strings {
 	public $valid_post_types = array( 'post', 'page' );
 
 	/**
+	 * Post meta keys whose values are translatable, such as an SEO description. The REST API must expose them.
+	 *
+	 * @var string[] $post_meta_keys
+	 */
+	public $post_meta_keys = array();
+
+	/**
 	 * The textdomain to use.
 	 *
 	 * @var string $textdomain
@@ -84,7 +91,7 @@ class Generate_Translation_Strings {
 	 * Initialze the class, set up the properties based on CLI args.
 	 */
 	public function __construct() {
-		$options = array( 'url::', 'taxonomies::', 'no_taxonomies', 'post_types::', 'no_post_types', 'textdomain::' );
+		$options = array( 'url::', 'taxonomies::', 'no_taxonomies', 'post_types::', 'no_post_types', 'post_meta::', 'textdomain::' );
 		$args = getopt( '', $options );
 
 		if ( ! empty( $args['url'] ) && filter_var( $args['url'], FILTER_VALIDATE_URL ) ) {
@@ -105,6 +112,10 @@ class Generate_Translation_Strings {
 
 		if ( isset( $args['no_post_types'] ) ) {
 			$this->valid_post_types = array();
+		}
+
+		if ( ! empty( $args['post_meta'] ) ) {
+			$this->post_meta_keys = explode( ',', $args['post_meta'] );
 		}
 
 		if ( ! empty( $args['textdomain'] ) ) {
@@ -416,6 +427,15 @@ class Generate_Translation_Strings {
 
 				if ( 'cli' === php_sapi_name() ) {
 					echo "$title\n"; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				}
+
+				foreach ( $this->post_meta_keys as $key ) {
+					// Collapse whitespace to match consumers that keep the value on one line, like a pattern header.
+					$value = trim( preg_replace( '/\s+/', ' ', (string) ( $page['meta'][ $key ] ?? '' ) ) );
+					if ( '' !== $value ) {
+						$value = addcslashes( $value, "'\\" );
+						$file_content .= "_x( '{$value}', '{$post_type['slug']} {$key}', '{$this->textdomain}' );\n";
+					}
 				}
 			}
 		}
