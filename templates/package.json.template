@@ -5,6 +5,9 @@
 	"author": "WordPress.org",
 	"license": "GPL-2.0-or-later",
 	"private": true,
+	"engines": {
+		"node": ">=22.19.0"
+	},
 	"dependencies": {},
 	"devDependencies": {
 		"@wordpress/browserslist-config": "^6.55.0",
