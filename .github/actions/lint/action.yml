@@ -3,52 +3,123 @@ description: "Run all linters"
 
 inputs:
   packageManager:
-    description: "Package manager to use. One of 'yarn' or 'npm'."
+    description: "Package manager to use. One of 'auto', 'yarn', or 'npm'."
     required: false
-    default: "yarn"
+    default: "auto"
 
 runs:
   using: "composite"
   steps:
-    # Every step below is gated on this value, so an unrecognised one would skip
-    # them all and report success.
-    - name: Validate the package manager
+    # Resolved via env so the input never reaches a shell directly.
+    - name: Resolve package manager
+      id: pm
       shell: bash
-      if: ${{ 'yarn' != inputs.packageManager && 'npm' != inputs.packageManager }}
+      env:
+        PM: ${{ inputs.packageManager }}
       run: |
-        echo "::error::packageManager must be 'yarn' or 'npm'."
-        exit 1
+        case "$PM" in
+          yarn|npm)
+            resolved="$PM"
+            ;;
+          auto)
+            if [ -f "package-lock.json" ] && [ ! -f "yarn.lock" ]; then
+              resolved="npm"
+            else
+              resolved="yarn"
+            fi
+            ;;
+          *)
+            echo "::error::packageManager must be 'auto', 'yarn', or 'npm'."
+            exit 1
+            ;;
+        esac
+        echo "manager=$resolved" >> "$GITHUB_OUTPUT"
 
-    - name: Lint CSS (yarn)
-      shell: bash
-      if: ${{ 'yarn' == inputs.packageManager }}
-      run: yarn workspaces run lint:css
+    - name: Cache PHPCS results
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: ${{ runner.temp }}/phpcs-cache
+        key: ${{ runner.os }}-phpcs-${{ hashFiles('composer.lock', 'composer.json', 'phpcs.xml.dist', 'phpcs.xml') }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-phpcs-${{ hashFiles('composer.lock', 'composer.json', 'phpcs.xml.dist', 'phpcs.xml') }}-
 
-    - name: Lint JS (yarn)
+    - name: Configure PHPCS parallelism and cache
       shell: bash
-      if: ${{ 'yarn' == inputs.packageManager }}
-      run: yarn workspaces run lint:js
+      run: |
+        mkdir -p "${{ runner.temp }}/phpcs-cache"
+        if [ -x ./vendor/bin/phpcs ]; then
+          ./vendor/bin/phpcs --config-set parallel "$(nproc)"
+          ./vendor/bin/phpcs --config-set cache 1
+        fi
 
-    # No --if-present: it would skip a workspace with a missing or misnamed lint
-    # script and still pass, where the yarn leg fails.
-    - name: Lint CSS (npm)
+    # Lint in parallel with buffered logs; no --if-present, so a missing workspace lint script fails like the yarn leg.
+    - name: Run linters in parallel
       shell: bash
-      if: ${{ 'npm' == inputs.packageManager }}
-      run: npm run lint:css --workspaces
+      env:
+        PM: ${{ steps.pm.outputs.manager }}
+        XDG_CACHE_HOME: ${{ runner.temp }}/phpcs-cache
+      run: |
+        log_dir=$(mktemp -d)
+        trap 'rm -rf "$log_dir"' EXIT
 
-    - name: Lint JS (npm)
-      shell: bash
-      if: ${{ 'npm' == inputs.packageManager }}
-      run: npm run lint:js --workspaces
+        run_npm_workspaces() {
+          local script="$1"
+          local ws_list="$log_dir/workspaces-${script//:/-}.lst"
+          if npm query .workspace 2>/dev/null | node -e "
+            const data = JSON.parse(require('fs').readFileSync(0, 'utf8'));
+            if (!Array.isArray(data) || data.length < 2) process.exit(1);
+            for (const ws of data) {
+              if (!ws.location) process.exit(1);
+              process.stdout.write(ws.location + '\0');
+            }
+          " > "$ws_list" 2>/dev/null; then
+            xargs -0 -P 2 -I {} npm run "$script" -w "{}" < "$ws_list"
+          else
+            npm run "$script" --workspaces
+          fi
+        }
 
-    # Selected by condition rather than interpolated, so the input never reaches
-    # a shell.
-    - name: Lint PHP (yarn)
-      shell: bash
-      if: ${{ 'yarn' == inputs.packageManager }}
-      run: yarn run lint:php
+        if [ "$PM" = "yarn" ]; then
+          ( yarn workspaces run lint:css ) > "$log_dir/css.log" 2>&1 &
+          pid_css=$!
+          ( yarn workspaces run lint:js ) > "$log_dir/js.log" 2>&1 &
+          pid_js=$!
+          ( yarn run lint:php ) > "$log_dir/php.log" 2>&1 &
+          pid_php=$!
+        else
+          ( run_npm_workspaces lint:css ) > "$log_dir/css.log" 2>&1 &
+          pid_css=$!
+          ( run_npm_workspaces lint:js ) > "$log_dir/js.log" 2>&1 &
+          pid_js=$!
+          ( npm run lint:php ) > "$log_dir/php.log" 2>&1 &
+          pid_php=$!
+        fi
 
-    - name: Lint PHP (npm)
-      shell: bash
-      if: ${{ 'npm' == inputs.packageManager }}
-      run: npm run lint:php
+        rc_css=0; wait "$pid_css" || rc_css=$?
+        rc_js=0; wait "$pid_js" || rc_js=$?
+        rc_php=0; wait "$pid_php" || rc_php=$?
+
+        echo "::group::Lint CSS ($PM)"
+        cat "$log_dir/css.log"
+        echo "::endgroup::"
+        if [ "$rc_css" -ne 0 ]; then
+          echo "::error::Lint CSS failed (exit $rc_css)"
+        fi
+
+        echo "::group::Lint JS ($PM)"
+        cat "$log_dir/js.log"
+        echo "::endgroup::"
+        if [ "$rc_js" -ne 0 ]; then
+          echo "::error::Lint JS failed (exit $rc_js)"
+        fi
+
+        echo "::group::Lint PHP ($PM)"
+        cat "$log_dir/php.log"
+        echo "::endgroup::"
+        if [ "$rc_php" -ne 0 ]; then
+          echo "::error::Lint PHP failed (exit $rc_php)"
+        fi
+
+        if [ "$rc_css" -ne 0 ] || [ "$rc_js" -ne 0 ] || [ "$rc_php" -ne 0 ]; then
+          exit 1
+        fi
