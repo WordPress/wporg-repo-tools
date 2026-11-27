@@ -6,3 +6,10 @@
 .wporg-b {
 	transition: color 120ms ease-in-out, background-color 120ms ease-in-out, border-color 120ms ease-in-out, outline 1ms;
 }
+
+/* `scss/selector-no-union-class-name`: a class name built from `&` cannot be searched for. */
+.wporg-c {
+	&-union {
+		color: #1e1e1e;
+	}
+}

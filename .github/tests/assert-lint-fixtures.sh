@@ -67,6 +67,7 @@ echo "Asserting the stylelint config is in effect..."
 out=$( ./node_modules/.bin/wp-scripts lint-style "$fixtures/bad.pcss" 2>&1 ); status=$?
 assert_violation "stylelint rule-empty-line-before" "rule-empty-line-before" "$status" "$out"
 assert_violation "stylelint max-line-length" "@stylistic/max-line-length" "$status" "$out"
+assert_violation "stylelint union class name" "scss/selector-no-union-class-name" "$status" "$out"
 
 echo "Asserting the PHPCS standard is in effect..."
 out=$( ./vendor/bin/phpcs --standard=phpcs.xml.dist --no-colors -s "$fixtures/bad.php" 2>&1 ); status=$?
