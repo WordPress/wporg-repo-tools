@@ -2,10 +2,7 @@
 	bootstrap="tests/bootstrap.php"
 	backupGlobals="false"
 	colors="true"
-	convertErrorsToExceptions="true"
-	convertNoticesToExceptions="true"
-	convertWarningsToExceptions="true"
-	cacheResultFile="./tests/.phpunit.result.cache"
+	cacheDirectory="./tests/.phpunit.cache"
 	>
 
 	<php>
@@ -13,19 +10,21 @@
 	</php>
 
 	<testsuites>
-		<testsuite name="wporg-two-factor">
+		<testsuite name="{$PROJECT_NAME}">
 			<directory prefix="test-" suffix=".php">
 				./tests/
 			</directory>
 		</testsuite>
 	</testsuites>
 
-	<coverage processUncoveredFiles="false">
+	<source>
 		<include>
 			<directory suffix=".php">example</directory>
 			<file>example.php</file>
 		</include>
+	</source>
 
+	<coverage>
 		<report>
 			<html outputDirectory="./tests/coverage" />
 		</report>
