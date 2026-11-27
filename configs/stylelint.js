@@ -13,6 +13,7 @@ module.exports = {
 				except: [ 'first-nested', 'after-single-line-comment' ],
 			},
 		],
+		'scss/selector-no-union-class-name': true,
 		'selector-class-pattern': null,
 		'value-keyword-case': [ 'lower', { camelCaseSvgKeywords: true } ],
 	},
