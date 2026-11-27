@@ -162,11 +162,14 @@ jobs:
           php-version: ${{ matrix.php-version }}
 
   test-php:
-    name: test-php (php ${{ matrix.php-version }})
+    name: test-php (${{ matrix.packageManager }}, php ${{ matrix.php-version }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        packageManager:
+          - yarn
+          - npm
         php-version:
           - "8.4"
           - "8.5"
@@ -180,6 +183,18 @@ jobs:
         shell: bash
         run: cp -a action-source/.github/tests/fixture-consumer/. .
 
+      # Drop the opposite lockfile so this job also exercises packageManager: auto.
+      - name: Keep only the matrix package manager lockfile
+        shell: bash
+        env:
+          PM: ${{ matrix.packageManager }}
+        run: |
+          if [ "$PM" = "npm" ]; then
+            rm -f yarn.lock
+          else
+            rm -f package-lock.json
+          fi
+
       # PHPUnit runs inside wp-env's cli container, so the wp-env phpVersion
       # determines what PHP the tests actually execute under. Rewrite the
       # fixture's .wp-env.json to match the matrix entry.
@@ -190,13 +205,12 @@ jobs:
           mv .wp-env.json.tmp .wp-env.json
           cat .wp-env.json
 
-      - name: Run setup action (yarn)
+      - name: Run setup action (auto-detected)
         uses: ./action-source/.github/actions/setup
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          packageManager: yarn
           skip-build: "true"
           php-version: ${{ matrix.php-version }}
 
-      - name: Run test-php action
+      - name: Run test-php action (auto-detected)
         uses: ./action-source/.github/actions/test-php

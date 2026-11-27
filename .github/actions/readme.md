@@ -11,7 +11,7 @@ They are set up as separate actions to mix and match in projects — in case any
 The scripts assume a few things about a project:
 
 1. The project uses composer, with `wporg-repo-tools`, so that `composer exec update-configs` will work.
-2. The project uses yarn and at least one yarn workspace for the theme.
+2. The project uses yarn or npm and at least one workspace for the theme.
 3. Optionally, there is an `.nvmrc`.
 
 The commands in the actions assume a few standard scripts are available. 
@@ -50,7 +50,7 @@ The setup action accepts a few inputs. `token` is required for composer to insta
     php-version: "8.4"
 ```
 
-The lint action takes `packageManager`, which defaults to `yarn`. Pass `npm` for projects that use npm workspaces, so it runs `npm run lint:* --workspaces` instead of `yarn workspaces run lint:*`:
+`setup`, `lint`, and `test-php` accept `packageManager`, which defaults to `auto` (selecting `npm` when `package-lock.json` is present without `yarn.lock`, otherwise `yarn`). You can also pass `yarn` or `npm` explicitly:
 
 ```yml
 - name: Lint

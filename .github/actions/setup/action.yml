@@ -7,10 +7,10 @@ inputs:
     required: true
     type: string
   packageManager:
-    description: "Package manager to use"
+    description: "Package manager to use. One of 'auto', 'yarn', or 'npm'."
     type: string
     required: false
-    default: "yarn"
+    default: "auto"
   skip-build:
     description: "Skip the build step"
     type: string
@@ -26,16 +26,42 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install svn
+    - name: Resolve package manager
+      id: pm
+      shell: bash
+      env:
+        PM: ${{ inputs.packageManager }}
+      run: |
+        case "$PM" in
+          yarn|npm)
+            resolved="$PM"
+            ;;
+          auto)
+            if [ -f "package-lock.json" ] && [ ! -f "yarn.lock" ]; then
+              resolved="npm"
+            else
+              resolved="yarn"
+            fi
+            ;;
+          *)
+            echo "::error::packageManager must be 'auto', 'yarn', or 'npm'."
+            exit 1
+            ;;
+        esac
+        echo "manager=$resolved" >> "$GITHUB_OUTPUT"
+
+    - name: Install svn (if needed by Composer)
       shell: bash
       run: |
-        sudo apt install subversion
+        if grep -qE '"type"[[:space:]]*:[[:space:]]*"svn"|\.svn\.wordpress\.org' composer.json composer.lock 2>/dev/null; then
+          sudo apt-get install -y --no-install-recommends subversion
+        fi
 
     - name: Install NodeJS
       uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
       with:
         node-version-file: ".nvmrc"
-        cache: ${{ inputs.packageManager }}
+        cache: ${{ steps.pm.outputs.manager }}
 
     - name: Setup PHP with PECL extension
       uses: shivammathur/setup-php@accd6127cb78bee3e8082180cb391013d204ef9f # v2.37.0
@@ -44,34 +70,51 @@ runs:
       env:
         COMPOSER_TOKEN: ${{ inputs.token }}
 
-    - name: Install all dependencies (yarn)
+    - name: Get Composer cache directory
+      id: composer-cache
       shell: bash
-      if: ${{ 'yarn' == inputs.packageManager }}
+      run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+    - name: Cache Composer downloads
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-php-${{ inputs.php-version }}-composer-${{ hashFiles('composer.lock', 'composer.json') }}
+        restore-keys: |
+          ${{ runner.os }}-php-${{ inputs.php-version }}-composer-
+
+    - name: Install Composer dependencies
+      shell: bash
       run: |
-        composer install || composer update wporg/* || {
+        composer install --no-interaction --prefer-dist || composer update --no-interaction --prefer-dist wporg/* || {
           echo "::error::Composer could not resolve dependencies. A conflict on wp-coding-standards/wpcs, squizlabs/php_codesniffer, phpcompatibility/phpcompatibility-wp or dealerdirect/phpcodesniffer-composer-installer means your own require-dev still pins one of them: remove it, wporg-repo-tools provides them now. A minimum-stability error means your root composer.json needs minimum-stability set to alpha and prefer-stable set to true. See https://github.com/WordPress/wporg-repo-tools#coding-standards"
           exit 1
         }
+
+    - name: Install Node dependencies (yarn)
+      shell: bash
+      if: ${{ steps.pm.outputs.manager == 'yarn' }}
+      run: |
         yarn
         yarn setup:tools
 
     - name: Build all included projects (yarn)
       shell: bash
-      if: ${{ inputs.packageManager == 'yarn' && inputs.skip-build != 'true' }}
+      if: ${{ steps.pm.outputs.manager == 'yarn' && inputs.skip-build != 'true' }}
       run: yarn workspaces run build
 
-    - name: Install all dependencies (npm)
+    - name: Install Node dependencies (npm)
       shell: bash
-      if: ${{ 'npm' == inputs.packageManager }}
+      if: ${{ steps.pm.outputs.manager == 'npm' }}
       run: |
-        composer install || composer update wporg/* || {
-          echo "::error::Composer could not resolve dependencies. A conflict on wp-coding-standards/wpcs, squizlabs/php_codesniffer, phpcompatibility/phpcompatibility-wp or dealerdirect/phpcodesniffer-composer-installer means your own require-dev still pins one of them: remove it, wporg-repo-tools provides them now. A minimum-stability error means your root composer.json needs minimum-stability set to alpha and prefer-stable set to true. See https://github.com/WordPress/wporg-repo-tools#coding-standards"
-          exit 1
-        }
-        npm install
+        if [ -f "package-lock.json" ]; then
+          npm ci
+        else
+          npm install
+        fi
         npm run setup:tools
 
     - name: Build all included projects (npm)
       shell: bash
-      if: ${{ inputs.packageManager == 'npm' && inputs.skip-build != 'true' }}
+      if: ${{ steps.pm.outputs.manager == 'npm' && inputs.skip-build != 'true' }}
       run: npm run build --workspaces --if-present

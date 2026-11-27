@@ -6,14 +6,105 @@ inputs:
     description: "Path to a custom wp-env config file (passed as --config to wp-env)"
     required: false
     default: ""
+  packageManager:
+    description: "Package manager to use. One of 'auto', 'yarn', or 'npm'."
+    required: false
+    default: "auto"
 
 runs:
   using: "composite"
   steps:
+    - name: Resolve package manager
+      id: pm
+      shell: bash
+      env:
+        PM: ${{ inputs.packageManager }}
+      run: |
+        case "$PM" in
+          yarn|npm)
+            resolved="$PM"
+            ;;
+          auto)
+            if [ -f "package-lock.json" ] && [ ! -f "yarn.lock" ]; then
+              resolved="npm"
+            else
+              resolved="yarn"
+            fi
+            ;;
+          *)
+            echo "::error::packageManager must be 'auto', 'yarn', or 'npm'."
+            exit 1
+            ;;
+        esac
+        echo "manager=$resolved" >> "$GITHUB_OUTPUT"
+
+    - name: Compute wp-env Docker cache key
+      id: docker-key
+      shell: bash
+      env:
+        WP_ENV_CONFIG: ${{ inputs.wp-env-config }}
+      run: |
+        files=()
+        for f in ".wp-env.json" "$WP_ENV_CONFIG" "package-lock.json" "yarn.lock"; do
+          if [ -n "$f" ] && [ -f "$f" ]; then
+            files+=("$f")
+          fi
+        done
+        if [ "${#files[@]}" -gt 0 ]; then
+          key=$(sha256sum "${files[@]}" | sha256sum | awk '{print $1}')
+        else
+          key="default"
+        fi
+        echo "hash=$key" >> "$GITHUB_OUTPUT"
+
+    - name: Cache wp-env Docker images
+      id: docker-cache
+      uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+      with:
+        path: ${{ runner.temp }}/wp-env-docker-cache
+        key: ${{ runner.os }}-wp-env-docker-${{ steps.docker-key.outputs.hash }}
+
+    - name: Load cached wp-env Docker images
+      if: ${{ steps.docker-cache.outputs.cache-hit == 'true' }}
+      shell: bash
+      run: |
+        if [ -f "${{ runner.temp }}/wp-env-docker-cache/images.tar" ]; then
+          docker load -i "${{ runner.temp }}/wp-env-docker-cache/images.tar" || true
+        fi
+
     - name: Install WordPress
       shell: bash
-      run: yarn wp-env ${{ inputs.wp-env-config && format('--config {0}', inputs.wp-env-config) }} start
+      env:
+        PM: ${{ steps.pm.outputs.manager }}
+        WP_ENV_CONFIG: ${{ inputs.wp-env-config }}
+      run: |
+        args=()
+        if [ -n "$WP_ENV_CONFIG" ]; then
+          args=(--config "$WP_ENV_CONFIG")
+        fi
+        if [ "$PM" = "yarn" ]; then
+          yarn wp-env "${args[@]}" start
+        else
+          ./node_modules/.bin/wp-env "${args[@]}" start
+        fi
+
+    - name: Save wp-env Docker images to cache
+      if: ${{ steps.docker-cache.outputs.cache-hit != 'true' }}
+      shell: bash
+      run: |
+        mkdir -p "${{ runner.temp }}/wp-env-docker-cache"
+        mapfile -t images < <(docker image ls --format '{{.Repository}}:{{.Tag}}' | grep -v '<none>' | sort -u)
+        if [ "${#images[@]}" -gt 0 ]; then
+          docker save -o "${{ runner.temp }}/wp-env-docker-cache/images.tar" "${images[@]}" || rm -f "${{ runner.temp }}/wp-env-docker-cache/images.tar"
+        fi
 
     - name: Running PHP unit tests
       shell: bash
-      run: yarn test:php
+      env:
+        PM: ${{ steps.pm.outputs.manager }}
+      run: |
+        if [ "$PM" = "yarn" ]; then
+          yarn test:php
+        else
+          npm run test:php
+        fi
