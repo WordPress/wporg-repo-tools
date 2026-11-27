@@ -62,7 +62,7 @@ runs:
       uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
       with:
         path: ${{ runner.temp }}/wp-env-docker-cache
-        key: ${{ runner.os }}-wp-env-docker-${{ steps.docker-key.outputs.hash }}
+        key: ${{ runner.os }}-${{ runner.arch }}-wp-env-docker-${{ steps.docker-key.outputs.hash }}
 
     - name: Load cached wp-env Docker images
       if: ${{ steps.docker-cache.outputs.cache-hit == 'true' }}
