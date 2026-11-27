@@ -52,10 +52,7 @@ runs:
           ./vendor/bin/phpcs --config-set cache 1
         fi
 
-    # Run CSS, JS, and PHP linters concurrently and buffer each stream so logs
-    # stay readable while using all runner cores.
-    # No --if-present for npm workspaces: it would skip a workspace with a
-    # missing or misnamed lint script and still pass, where the yarn leg fails.
+    # Lint in parallel with buffered logs; no --if-present, so a missing workspace lint script fails like the yarn leg.
     - name: Run linters in parallel
       shell: bash
       env:
